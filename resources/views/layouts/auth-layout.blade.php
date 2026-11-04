@@ -23,7 +23,7 @@
             <div class="relative flex items-center gap-2.5">
                 <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-[#c9934a]/15 text-[#c9934a]">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m3 10 9-7 9 7M5.5 9v11h13V9M9 20v-6h6v6M3 20h18"/>
                     </svg>
                 </span>
                 <span class="text-[15px] font-semibold tracking-tight text-[#ece7dd]">StockFlow</span>
@@ -31,17 +31,16 @@
 
             <div class="relative my-auto max-w-sm">
                 <p class="text-[11px] font-medium uppercase tracking-[0.24em] text-[#c9934a]">
-                    Inventory &amp; Order
+                    Toko Bahan Bangunan
                 </p>
 
                 <h1 class="mt-5 text-[2.5rem] leading-[1.08] tracking-tight text-[#ece7dd] xl:text-[2.85rem]"
                     style="font-family:'Fraunces', ui-serif, Georgia, serif;">
-                    Stok rapi,<br>pesanan terkendali.
+                    Material lengkap,<br>stok terkendali.
                 </h1>
 
                 <p class="mt-5 text-sm leading-relaxed text-[#8a8073]">
-                    Satu sistem untuk inventori multi-gudang dan alur pesanan.
-                    Tanpa spreadsheet, tanpa tebak-tebakan.
+                    Kelola stok semen, besi, cat, dan material bangunan lainnya dalam satu sistem.
                 </p>
 
                 <dl class="mt-12 divide-y divide-white/[0.06] border-y border-white/[0.06]">
@@ -61,11 +60,8 @@
             </div>
 
             <div class="relative flex items-center justify-between text-[11px] text-[#5a544c]">
-                <span>© 2026 StockFlow</span>
-                <span class="inline-flex items-center gap-2">
-                    <span class="h-1 w-1 rounded-full bg-[#c9934a]"></span>
-                    v2.4
-                </span>
+                <span>© 2026 StockFlow BPVP</span>
+           
             </div>
         </aside>
 
@@ -74,7 +70,7 @@
                 <div class="mb-8 flex items-center gap-2.5 lg:hidden">
                     <span class="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[#161410] text-[#c9934a]">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m3 10 9-7 9 7M5.5 9v11h13V9M9 20v-6h6v6M3 20h18"/>
                         </svg>
                     </span>
                     <span class="text-[15px] font-semibold tracking-tight text-[#161410]">StockFlow</span>

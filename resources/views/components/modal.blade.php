@@ -1,3 +1,9 @@
+{{-- PUSAT MODAL/POPUP APLIKASI
+     AUTH: konfirmasi login/register, misalnya sukses membuat admin pertama.
+     CRUD ADMIN: konfirmasi tambah, edit, atau hapus data oleh admin.
+     CRUD GUDANG/KASIR & USER: gunakan komponen yang sama dari halaman/role terkait.
+     Kalau desain tiap proses nanti berbeda, tambahkan varian di komponen ini;
+     jangan membuat markup modal baru berulang di setiap halaman. --}}
 @props([
     'show' => false,
     'title',
@@ -7,6 +13,10 @@
 ])
 
 @if ($show)
+    @php
+        $modalId = 'modal-' . (string) \Illuminate\Support\Str::uuid();
+    @endphp
+
     <style>
         @keyframes modal-fade-in  { from { opacity: 0 } to { opacity: 1 } }
         @keyframes modal-fade-out { from { opacity: 1 } to { opacity: 0 } }
@@ -60,12 +70,13 @@
     </style>
 
     <div data-modal-overlay
+         id="{{ $modalId }}"
          class="modal-overlay-enter fixed inset-0 z-50 flex items-center justify-center bg-[#161410]/60 p-4 backdrop-blur-sm"
          role="presentation">
         <section data-modal-card
                  class="modal-card-enter relative w-full max-w-md overflow-hidden rounded-2xl border border-[#e2dac8] bg-[#f7f4ee] p-6 shadow-2xl shadow-[#161410]/25"
                  role="dialog" aria-modal="true"
-                 aria-labelledby="auth-modal-title" aria-describedby="auth-modal-message"
+                 aria-labelledby="{{ $modalId }}-title" aria-describedby="{{ $modalId }}-message"
                  tabindex="-1">
 
             <!-- Hiasan: glow sudut + garis aksen atas -->
@@ -84,7 +95,7 @@
                     </span>
 
                     <div class="min-w-0">
-                        <h2 id="auth-modal-title"
+                        <h2 id="{{ $modalId }}-title"
                             class="modal-rise-1 text-xl font-semibold leading-tight text-[#161410]"
                             style="font-family:'Fraunces', ui-serif, Georgia, serif;">
                             {{ $title }}
@@ -104,7 +115,7 @@
                 </button>
             </div>
 
-            <p id="auth-modal-message" class="modal-rise-2 mt-4 text-sm leading-relaxed text-[#7a7264]">
+            <p id="{{ $modalId }}-message" class="modal-rise-2 mt-4 text-sm leading-relaxed text-[#7a7264]">
                 {{ $message }}
             </p>
 
@@ -138,7 +149,7 @@
 
     <script>
         (function () {
-            const overlay = document.querySelector('[data-modal-overlay]');
+            const overlay = document.getElementById(@js($modalId));
             if (!overlay) return;
 
             const card   = overlay.querySelector('[data-modal-card]');

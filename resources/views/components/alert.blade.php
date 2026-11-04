@@ -1,3 +1,9 @@
+{{-- PUSAT ALERT/PESAN APLIKASI
+     AUTH: error validasi/login dan info proses register.
+     CRUD ADMIN: sukses/gagal saat tambah, edit, atau hapus data.
+     CRUD GUDANG/KASIR & USER: gunakan komponen yang sama untuk pesan tiap role.
+     Pilih type (error, info, success, warning); kalau desain perlu dibedakan nanti,
+     tambahkan variannya di sini agar markup alert tidak tersebar di halaman. --}}
 @props(['type' => 'info'])
 
 @php

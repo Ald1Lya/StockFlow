@@ -115,6 +115,7 @@
     </div>
 
     @if (session('admin_registered'))
+        {{-- Modal ini khusus konfirmasi register admin pertama; popup fitur/role lain punya desainnya sendiri nanti. --}}
         <x-modal
             :show="true"
             title="Akun admin berhasil dibuat"
