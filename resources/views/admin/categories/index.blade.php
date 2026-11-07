@@ -38,7 +38,7 @@
                 name="search"
                 value="{{ $search }}"
                 maxlength="100"
-                placeholder="Cari nama atau kode kategori..."
+                placeholder="Cari berdasarkan nama atau kode kategori..."
                 class="w-full rounded-md border border-[#e2dac8] bg-white py-2 pl-9 pr-3 text-[12.5px] text-[#3a352d] placeholder:text-[#a89f8e] focus:border-[#c9934a] focus:outline-none focus:ring-2 focus:ring-[#c9934a]/15"
             >
         </div>
@@ -60,27 +60,45 @@
     @else
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             @foreach ($categories as $category)
-                <a href="{{ route('admin.categories.edit', ['category' => $category->id]) }}"
-                class="rounded-lg border border-[#e2dac8] bg-white p-4 transition hover:border-[#c9934a]">
+                <div class="rounded-lg border border-[#e2dac8] bg-white p-4 transition hover:border-[#c9934a]">
 
                     <div class="flex items-center justify-between">
-                        <span class="text-[11.5px] uppercase tracking-wider text-[#8a8073]">
-                            {{ $category->name }}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-[10px] text-[#a89f8e]">
+                                {{ ($categories->firstItem() ?? 0) + $loop->index }}.
+                            </span>
+                            <span class="text-[11.5px] uppercase tracking-wider text-[#8a8073]">
+                                {{ $category->name }}
+                            </span>
+                        </div>
 
                         <span class="font-mono text-[10px] text-[#a89f8e]">
                             {{ $category->code }}
                         </span>
                     </div>
 
-                    <div class="mt-2 font-mono text-xl font-semibold tnum text-[#161410]">
-                        {{ $category->products_count }}
-                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <div class="font-mono text-xl font-semibold tnum text-[#161410]">
+                                {{ $category->products_count }}
+                            </div>
+                            <div class="mt-0.5 text-[11px] text-[#a89f8e]">
+                                produk
+                            </div>
+                        </div>
 
-                    <div class="mt-0.5 text-[11px] text-[#a89f8e]">
-                        produk
+                        <form action="{{ route('admin.categories.destroy', $category) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 text-[11.5px] font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                                aria-label="Hapus kategori {{ $category->name }}">
+                                Hapus
+                            </button>
+                        </form>
                     </div>
-                </a>
+                </div>
             @endforeach
         </div>
 

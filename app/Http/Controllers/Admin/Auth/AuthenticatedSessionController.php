@@ -15,6 +15,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create(): View
     {
+        // Tampilkan tombol pendaftaran admin hanya jika database belum memiliki user.
         return view('auth.login', [
             'canRegisterAdmin' => ! User::query()->exists(),
         ]);
@@ -22,6 +23,7 @@ class AuthenticatedSessionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // Validasi kredensial, role yang diminta, dan pilihan "ingat saya".
         $validated = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
@@ -29,7 +31,7 @@ class AuthenticatedSessionController extends Controller
             'remember' => ['nullable', 'boolean'],
         ]);
 
-        // Role yang dipilih dipakai sebagai syarat kredensial, bukan sebagai hak akses dari browser.
+        // Cocokkan email, password, dan role; role dari form hanya syarat login, bukan pemberian hak akses.
         if (! Auth::attempt([
             'email' => $validated['email'],
             'password' => $validated['password'],
@@ -43,22 +45,27 @@ class AuthenticatedSessionController extends Controller
         // Regenerasi ID session setelah login untuk mencegah session fixation.
         $request->session()->regenerate();
 
+        // Pilih dashboard tujuan berdasarkan role akun yang berhasil login.
         $dashboardRoute = match ($validated['role']) {
             'admin' => 'admin.dashboard',
             'warehouse' => 'gudang.dashboard',
             'cashier' => 'kasir.dashboard',
         };
 
+        // Arahkan user ke dashboard rolenya.
         return redirect()->route($dashboardRoute);
     }
 
     public function destroy(Request $request): RedirectResponse
     {
-        // Logout diikuti invalidasi session agar session lama tidak bisa dipakai kembali.
+        // Keluar dari akun yang sedang terautentikasi.
         Auth::logout();
+        // Batalkan seluruh data session lama.
         $request->session()->invalidate();
+        // Buat token CSRF baru untuk request berikutnya.
         $request->session()->regenerateToken();
 
+        // Kembali ke halaman login.
         return redirect()->route('login');
     }
 }

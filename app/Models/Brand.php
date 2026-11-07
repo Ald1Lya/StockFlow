@@ -8,12 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Brand extends Model
 {
-    protected $fillable = ['category_id', 'name', 'code', 'description'];
+    protected $fillable = [ 'name', 'code', 'description'];
 
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
-    }
+
 
     public function products(): HasMany
     {

@@ -6,80 +6,65 @@ use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class SupplierController extends Controller
 {
-    // READ: Menampilkan seluruh user
+    // READ: Menampilkan daftar supplier.
     public function index(Request $request)
     {
+        // Ambil kata pencarian dari parameter URL.
         $search = $request->query('search');
+        // Pastikan nilai pencarian berupa teks yang sudah dirapikan dan dibatasi.
         $search = is_string($search) ? mb_substr(trim($search), 0, 100) : '';
 
+        // Siapkan query supplier dan tambahkan filter nama jika pencarian diisi.
         $suppliers = Supplier::query()
             ->when($search !== '', function (Builder $query) use ($search) {
+                // Cari supplier yang namanya mengandung kata pencarian.
                 $query->where(function (Builder $query) use ($search) {
-                    $query->where('name', 'like', "%{$search}%")
-                        ->orWhere('code', 'like', "%{$search}%");
+                    $query->where('name', 'like', "%{$search}%");
                 });
             })
+            // Tampilkan supplier terbaru, 10 data per halaman, dan pertahankan query pencarian.
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
+        // Kirim data dan kata pencarian ke halaman daftar supplier.
         return view('admin.suppliers.index', [
             'suppliers' => $suppliers,
             'search' => $search,
         ]);
     }
 
-    public function create(Request $request)
+    public function create()
     {
+        // Tampilkan form kosong untuk membuat supplier.
         return view('admin.suppliers.create');
     }
 
     public function store(Request $request)
     {
+        // Validasi data yang dikirim dari form sebelum disimpan.
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'code' => ['nullable', 'string', 'max:255', 'unique:suppliers,code'],
-            'email' => ['nullable', 'string'],
-            'phone' => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255', 'unique:suppliers,name'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string'],
         ]);
 
-        // LOGIKA MEMBUAT INISIAL (Contoh: "Alat Berat" menjadi "AB")
-        // Memecah nama menjadi kata, ambil huruf pertama, gabungkan, lalu ubah ke HURUF BESAR
-        $words = explode(' ', $data['name']);
-        $initials = '';
-        foreach ($words as $word) {
-            $initials .= substr($word, 0, 1);
-        }
-        $prefix = strtoupper($initials); // Hasil: "AB"
-
-        // LOGIKA GENERATE KODE ACAK YANG AMAN (ANTI-KEMBAR)
-        do {
-            // Membuat 4 karakter alfanumerik acak huruf besar (Contoh: X7R2)
-            $randomString = strtoupper(Str::random(4));
-            $generatedCode = $prefix.'-'.$randomString; // Hasil: "AB-X7R2"
-
-            // Cek ke database apakah kode ini sudah pernah dipakai
-            $codeExists = Supplier::where('code', $generatedCode)->exists();
-        } while ($codeExists); // Jika sudah ada, loop akan mengulang generate kode baru
-
-        // Masukkan kode yang sudah pasti unik ke dalam data
-        $data['code'] = $generatedCode;
-
-        // 5. Simpan ke Database
+        // Buat record supplier dari data yang sudah lolos validasi.
         Supplier::create($data);
 
+        // Kembali ke daftar supplier dengan notifikasi berhasil.
         return redirect()
             ->route('admin.suppliers.index')
-            ->with('success', 'Supplier berhasil ditambahkan.');
+            ->with('success', "Supplier {$data['name']} berhasil ditambahkan.");
     }
 
     public function edit(Supplier $supplier)
     {
+        // Gunakan supplier dari route model binding untuk mengisi form edit.
         return view('admin.suppliers.edit', [
             'supplier' => $supplier,
         ]);
@@ -87,6 +72,7 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier)
     {
+        // Validasi nilai baru; field kontak boleh kosong.
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email'],
@@ -94,8 +80,10 @@ class SupplierController extends Controller
             'address' => ['nullable', 'string'],
         ]);
 
+        // Terapkan perubahan pada supplier yang sedang diedit.
         $supplier->update($data);
 
+        // Kembali ke daftar supplier dengan notifikasi berhasil.
         return redirect()
             ->route('admin.suppliers.index')
             ->with('success', 'Supplier berhasil diperbarui.');
@@ -103,10 +91,12 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
+        // Hapus supplier yang ditemukan dari URL.
         $supplier->delete();
 
+        // Kembali ke daftar supplier dan tampilkan notifikasi berhasil.
         return redirect()
-            ->route('admin.supplier.index')
+            ->route('admin.suppliers.index')
             ->with('success', 'Supplier Berhasil Dihapus.');
     }
 }

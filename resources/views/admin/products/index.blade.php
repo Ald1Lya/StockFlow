@@ -27,7 +27,7 @@
             type="search"
             name="search"
             value="{{ $search }}"
-            placeholder="Cari nama atau SKU..."
+            placeholder="Cari berdasarkan nama produk atau SKU..."
             class="w-full max-w-xs rounded-md border border-[#e2dac8] bg-white px-3 py-1.5 text-[12.5px] placeholder:text-[#b8ae9b] focus:border-[#c9934a] focus:outline-none focus:ring-2 focus:ring-[#c9934a]/15"
         >
         <button type="submit" class="rounded-md border border-[#e2dac8] bg-white px-3 py-1.5 text-[12.5px] font-medium text-[#3a352d] hover:bg-[#f7f4ee]">
@@ -40,6 +40,7 @@
             <table class="w-full text-left text-[12.5px]">
                 <thead>
                     <tr class="border-b border-[#e2dac8] bg-[#f7f4ee]/60 text-[10.5px] uppercase tracking-wider text-[#8a8073]">
+                        <th class="px-5 py-3 font-semibold">No.</th>
                         <th class="px-5 py-3 font-semibold">SKU</th>
                         <th class="px-3 py-3 font-semibold">Nama Produk</th>
                         <th class="px-3 py-3 font-semibold">Kategori</th>
@@ -52,6 +53,7 @@
                 <tbody class="divide-y divide-[#e2dac8]/70 text-[#3a352d]">
                     @forelse ($products as $product)
                         <tr class="hover:bg-[#f7f4ee]/50">
+                            <td class="px-5 py-3 font-mono text-[11.5px] text-[#8a8073]">{{ ($products->firstItem() ?? 0) + $loop->index }}</td>
                             <td class="px-5 py-3 font-mono text-[11.5px] font-medium text-[#161410]">{{ $product->sku }}</td>
                             <td class="px-3 py-3 font-medium">{{ $product->name }}</td>
                             <td class="px-3 py-3 text-[11.5px] text-[#7a7264]">{{ $product->category->name }}</td>
@@ -66,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-5 py-8 text-center text-[12.5px] text-[#7a7264]">
+                            <td colspan="8" class="px-5 py-8 text-center text-[12.5px] text-[#7a7264]">
                                 {{ $search !== '' ? 'Produk tidak ditemukan.' : 'Belum ada produk. Tambahkan produk pertama Anda.' }}
                             </td>
                         </tr>

@@ -55,7 +55,7 @@
         <div>
             <label for="email" class="mb-1.5 block text-[13px] font-medium text-[#3a352d]">Email</label>
             <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                   placeholder="nama@stockflow.id"
+                   placeholder="Masukkan alamat email"
                    class="block w-full rounded-lg border border-[#e2dac8] bg-white px-3.5 py-2.5 text-sm text-[#161410] placeholder:text-[#b8ae9b] transition focus:border-[#c9934a] focus:outline-none focus:ring-4 focus:ring-[#c9934a]/12">
         </div>
 
@@ -67,7 +67,7 @@
                 </a>
             </div>
             <div class="relative">
-                <input type="password" name="password" id="password" required placeholder="••••••••"
+                <input type="password" name="password" id="password" required placeholder="Masukkan kata sandi"
                        class="block w-full rounded-lg border border-[#e2dac8] bg-white py-2.5 pl-3.5 pr-11 text-sm text-[#161410] placeholder:text-[#b8ae9b] transition focus:border-[#c9934a] focus:outline-none focus:ring-4 focus:ring-[#c9934a]/12">
                 <button type="button" data-toggle="password" data-target="password" aria-label="Tampilkan password"
                         class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-[#b8ae9b] transition-colors hover:text-[#7a7264]">

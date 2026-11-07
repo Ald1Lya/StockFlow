@@ -15,11 +15,11 @@
         <div class="rounded-lg border border-[#e2dac8] bg-white p-5 sm:p-6">
             <div class="grid gap-4 sm:grid-cols-2">
                 <label class="text-[12px] font-medium text-[#3a352d]">Nama lengkap
-                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Contoh: Rina Suryani" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Masukkan nama lengkap" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
                     @error('name') <span class="mt-1 block text-[11px] text-red-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="text-[12px] font-medium text-[#3a352d]">Email
-                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@stockflow.id" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="Masukkan alamat email" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
                     @error('email') <span class="mt-1 block text-[11px] text-red-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="text-[12px] font-medium text-[#3a352d]">Peran
@@ -31,11 +31,11 @@
                     @error('role') <span class="mt-1 block text-[11px] text-red-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="text-[12px] font-medium text-[#3a352d] sm:col-span-2">Kata sandi sementara
-                    <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                    <input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Masukkan kata sandi (minimal 8 karakter)" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
                     @error('password') <span class="mt-1 block text-[11px] text-red-600">{{ $message }}</span> @enderror
                 </label>
                 <label class="text-[12px] font-medium text-[#3a352d] sm:col-span-2">Konfirmasi kata sandi
-                    <input type="password" name="password_confirmation" required minlength="8" autocomplete="new-password" placeholder="Ulangi kata sandi" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                    <input type="password" name="password_confirmation" required minlength="8" autocomplete="new-password" placeholder="Masukkan kembali kata sandi" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
                 </label>
             </div>
 

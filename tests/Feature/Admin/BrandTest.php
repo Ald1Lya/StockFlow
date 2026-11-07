@@ -8,40 +8,39 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+it('renders the brand creation form without category selection', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)
+        ->get(route('admin.brands.create'))
+        ->assertOk()
+        ->assertSee('name="name"', false)
+        ->assertDontSee('category-picker')
+        ->assertDontSee('category_id');
+});
+
 it('creates a brand with a generated code', function () {
     $admin = User::factory()->create(['role' => 'admin']);
-    $category = Category::create([
-        'name' => 'Semen',
-        'slug' => 'semen-001',
-        'code' => 'SMN-001',
-    ]);
 
     $this->actingAs($admin)
         ->post(route('admin.brands.store'), [
             'name' => 'Tiga Roda',
-            'category_id' => $category->id,
             'description' => 'Semen untuk konstruksi.',
         ])
         ->assertRedirect(route('admin.brands.index'))
-        ->assertSessionHas('success', 'Brand berhasil ditambahkan.');
+        ->assertSessionHas('success', 'Brand Tiga Roda berhasil ditambahkan dengan kode TIR.');
 
     $this->assertDatabaseHas('brands', [
-        'category_id' => $category->id,
         'name' => 'Tiga Roda',
-        'code' => 'SMN-001-TR',
+        'code' => 'TIR',
         'description' => 'Semen untuk konstruksi.',
     ]);
 });
 
 it('searches brands by name or code', function (string $search) {
     $admin = User::factory()->create(['role' => 'admin']);
-    $category = Category::create([
-        'name' => 'Semen',
-        'slug' => 'semen-001',
-        'code' => 'SMN-001',
-    ]);
-    Brand::create(['category_id' => $category->id, 'name' => 'Tiga Roda', 'code' => 'SEM-TR']);
-    Brand::create(['category_id' => $category->id, 'name' => 'Nippon Paint', 'code' => 'SEM-NP']);
+    Brand::create(['name' => 'Tiga Roda', 'code' => 'TIR']);
+    Brand::create(['name' => 'Nippon Paint', 'code' => 'NIP']);
 
     $this->actingAs($admin)
         ->get(route('admin.brands.index', ['search' => $search]))
@@ -50,32 +49,20 @@ it('searches brands by name or code', function (string $search) {
         ->assertDontSee('Nippon Paint');
 })->with([
     'brand name' => 'Tiga Roda',
-    'brand code' => 'SEM-TR',
+    'brand code' => 'TIR',
 ]);
 
-it('regenerates a brand code when its category changes', function () {
+it('regenerates a brand code when its name changes', function () {
     $admin = User::factory()->create(['role' => 'admin']);
-    $category = Category::create([
-        'name' => 'Semen',
-        'slug' => 'semen-001',
-        'code' => 'SMN-001',
-    ]);
-    $paintCategory = Category::create([
-        'name' => 'Cat',
-        'slug' => 'cat-002',
-        'code' => 'CAT-002',
-    ]);
     $brand = Brand::create([
-        'category_id' => $category->id,
         'name' => 'Tiga Roda',
-        'code' => 'SEM-TR',
+        'code' => 'TIR',
         'description' => 'Semen',
     ]);
 
     $this->actingAs($admin)
         ->put(route('admin.brands.update', $brand), [
-            'name' => 'Tiga Roda',
-            'category_id' => $paintCategory->id,
+            'name' => 'Nippon Paint',
             'description' => 'Semen untuk bangunan.',
         ])
         ->assertRedirect(route('admin.brands.index'))
@@ -83,9 +70,8 @@ it('regenerates a brand code when its category changes', function () {
 
     $this->assertDatabaseHas('brands', [
         'id' => $brand->id,
-        'category_id' => $paintCategory->id,
-        'name' => 'Tiga Roda',
-        'code' => 'CAT-002-TR',
+        'name' => 'Nippon Paint',
+        'code' => 'NIP',
         'description' => 'Semen untuk bangunan.',
     ]);
 });
@@ -98,9 +84,8 @@ it('keeps products when deleting their brand', function () {
         'code' => 'SMN-001',
     ]);
     $brand = Brand::create([
-        'category_id' => $category->id,
         'name' => 'Tiga Roda',
-        'code' => 'SEM-TR',
+        'code' => 'TIR',
     ]);
     $product = product::create([
         'category_id' => $category->id,

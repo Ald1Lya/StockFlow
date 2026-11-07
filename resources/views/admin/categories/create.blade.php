@@ -32,7 +32,7 @@
                         type="text"
                         name="name"
                         value="{{ old('name') }}"
-                        placeholder="Contoh: Semen"
+                        placeholder="Masukkan nama kategori"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >
                 </label>
@@ -45,7 +45,7 @@
                     <textarea
                         name="description"
                         rows="3"
-                        placeholder="Keterangan kategori"
+                        placeholder="Masukkan deskripsi kategori"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >{{ old('description') }}</textarea>
                 </label> --}}

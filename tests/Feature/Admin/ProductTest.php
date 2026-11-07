@@ -7,30 +7,68 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('lists categories from the database in the product form', function () {
+it('provides searchable category and brand fields in the product form', function () {
     $admin = User::factory()->create(['role' => 'admin']);
-    Category::create([
-        'name' => 'Besi',
-        'slug' => 'besi-001',
+
+    $this->actingAs($admin)
+        ->get(route('admin.products.create'))
+        ->assertOk()
+        ->assertSee('Cari nama kategori...')
+        ->assertSee('Cari nama brand...')
+        ->assertSee(route('admin.products.create'));
+});
+
+it('searches categories and brands for the product form', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $category = Category::create([
+        'name' => 'Besi Beton',
+        'slug' => 'besi-beton',
         'code' => 'BSI-001',
     ]);
-    $category = Category::create([
-        'name' => 'Semen',
-        'slug' => 'semen-002',
-        'code' => 'SMN-002',
-    ]);
     Brand::create([
-        'category_id' => $category->id,
+        'name' => 'Besi Jaya',
+        'code' => 'BSJ-001',
+    ]);
+    $brand = Brand::create([
         'name' => 'Tiga Roda',
         'code' => 'SEM-TR',
     ]);
 
     $this->actingAs($admin)
-        ->get(route('admin.products.create'))
+        ->getJson(route('admin.products.create', ['type' => 'category', 'search' => 'beton']))
         ->assertOk()
-        ->assertSee('<option value="">Pilih kategori</option>', false)
-        ->assertSeeInOrder(['Besi', 'Semen'])
-        ->assertSee('Tiga Roda');
+        ->assertExactJson([
+            'data' => [
+                ['id' => $category->id, 'name' => 'Besi Beton'],
+            ],
+            'has_more' => false,
+        ]);
+
+    $this->getJson(route('admin.products.create', ['type' => 'brand', 'search' => 'roda']))
+        ->assertOk()
+        ->assertExactJson([
+            'data' => [
+                ['id' => $brand->id, 'name' => 'Tiga Roda'],
+            ],
+            'has_more' => false,
+        ]);
+});
+
+it('limits product form search results to ten options', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    foreach (range(1, 11) as $index) {
+        Brand::create([
+            'name' => sprintf('Brand %02d', $index),
+            'code' => sprintf('BR-%03d', $index),
+        ]);
+    }
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.products.create', ['type' => 'brand', 'search' => 'brand']))
+        ->assertOk()
+        ->assertJsonCount(10, 'data')
+        ->assertJsonPath('has_more', true);
 });
 
 it('creates a product and displays it in the product list', function () {

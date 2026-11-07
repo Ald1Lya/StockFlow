@@ -1,0 +1,209 @@
+
+📋 Daftar Master Data Kategori (Tahap 2) - 23 Item utnuk membuat SKU kode product dengan rumus 
+kode_categori ditambah kode_brand
+
+Daftar ini sudah didesain agar tidak ada barang toko bangunan yang "telantar" atau tidak punya kelompok:
+1. Semen & Mortar (Semen portland, semen instan, acian, pengisi nat)
+2. Bata & Blok (Bata ringan/hebel, batako, bata merah, roster)
+3. Besi & Baja (Besi beton, baja ringan, wiremesh, siku, hollow)
+4. Atap & Plafon (Genteng, spandek, alderon, gypsum, GRC, triplek)
+5. Kayu & Kusen (Kayu kaso, balok, reng, kusen pintu/jendela aluminium/kayu)
+6. Keramik & Granit (Keramik lantai, keramik dinding, granit tile, batu alam)
+7. Lantai Modern (Vinyl, SPC, parket kayu, karpet lantai)
+8. Pipa & Fitting (Pipa PVC, pipa PPR/air panas, sambungan pipa, lem pipa)
+9. Sanitari & Bak (Kloset duduk/jongkok, wastafel, bathtub, urinoir)
+10. Keran & Shower (Keran air, shower set, jet shower, floor drain)
+11. Tangki & Pompa (Tandon/toreng air, pompa air, filter air, radar otomatis)
+12. Cat Dinding (Cat interior, cat eksterior, plamir, dempul tembok)
+13. Cat Kayu & Besi (Cat minyak, politur, vernis, tiner, cat semprot)
+14. Pelapis Anti Bocor (Waterproofing, serat piber, aquaproof)
+15. Alat Cat (Kuas, roller, bak cat, masking tape, ampelas)
+16. Kabel & Konduit (Kabel NYA/NYM/NYY, pipa pelindung kabel, klem)
+17. Saklar & Panel (Saklar, stop kontak, MCB, box panel, sekring)
+18. Lampu & Pencahayaan (Lampu LED, lampu hias, downlight, lampu sorot)
+19. Perkakas Tangan (Palu, obeng, tang, gergaji, meteran, kunci pas)
+20. Perkakas Listrik (Bor listrik, mesin gerinda, mesin las, serutan kayu)
+21. Kunci & Engsel (Kunci pintu/mortise lock, handle, engsel pintu/jendela, gembok)
+22. Paku & Baut (Paku kayu/beton, sekrup baja ringan, dynabolt, mur)
+23. Lem & Perekat (Lem korea, sealant/silikon, lem Fox, lakban bangunan)
+
+🛠️ Keuntungan Fungsional untuk Admin Anda:
+
+• Laporan Stok Akurat: Anda bisa melihat performa penjualan secara spesifik (misal: "Kategori Pipa & Fitting sedang laku keras bulan ini").
+• Manajemen Vendor/Supplier: Biasanya supplier toko bangunan terbagi per kategori ini (Supplier Cat berbeda dengan Supplier Besi/Baja). Admin akan lebih mudah mencocokkan barang masuk.
+• Filter Halaman Depan otomatis: Di sisi pembeli nanti, 23 kategori ini bisa langsung dijadikan menu sidebar untuk menyaring (filter) produk secara instan.
+Agar bisa langsung Anda pakai di sistem backend, apakah Anda memerlukan data ini dalam bentuk script SQL (INSERT INTO...), format JSON, atau struktur tabel Excel/CSV untuk di-import?
+
+
+============================================================
+ALUR PRODUK STOCKFLOW (IMPLEMENTASI YANG BERJALAN SEKARANG)
+============================================================
+
+Tujuan catatan ini: menjelaskan apa yang terjadi saat admin membuka form produk,
+mencari kategori/brand, lalu menekan tombol "Simpan Produk".
+
+GAMBARAN SINGKAT
+----------------
+Browser menampilkan form dari Blade.
+JavaScript hanya membantu pencarian kategori/brand tanpa memuat semua data.
+Laravel tetap melakukan validasi dan menyimpan produk ke database.
+
+Alur sederhananya:
+
+1. Admin membuka halaman Produk Baru.
+2. Admin mengetik nama kategori atau brand.
+3. JavaScript meminta hasil yang cocok ke endpoint Laravel.
+4. Admin memilih hasil; nama tampil di form dan ID disimpan di input tersembunyi.
+5. Admin mengisi detail lain dan menekan Simpan Produk.
+6. Laravel memvalidasi data, membuat SKU, menyimpan produk, lalu kembali ke daftar.
+
+FILE DAN TUGASNYA
+-----------------
+
+1. routes/web.php
+   Daftar alamat URL dan controller yang menangani request.
+   Semua route admin berada di bawah prefix /admin dan middleware auth serta role:admin.
+
+   - GET /admin/products/create -> ProductController::create()
+     Menampilkan form HTML untuk browser biasa; jika request meminta JSON dan
+     membawa parameter type serta search, mengembalikan hasil pencarian kategori
+     atau brand sebagai JSON.
+   - POST /admin/products -> ProductController::store()
+     Memvalidasi dan menyimpan produk.
+   - GET /admin/products -> ProductController::index()
+     Menampilkan daftar produk.
+
+   Route produk cukup memakai Route::resource('products', ProductController::class),
+   sama seperti resource lain. Tidak ada route khusus products/options.
+
+2. resources/views/admin/products/create.blade.php
+   Template tampilan form yang dikirim dari server ke browser.
+   Blade bukan tempat menyimpan produk; ia hanya membentuk HTML.
+
+   - Input kategori yang terlihat adalah kotak pencarian nama kategori.
+   - Input brand yang terlihat adalah kotak pencarian nama brand.
+   - Input tersembunyi (type="hidden") bernama category_id dan brand_id
+     menampung ID database yang akan dikirim saat form disubmit.
+   - Kategori wajib dipilih; brand boleh dikosongkan.
+   - Form mengirim POST ke route admin.products.store dan menggunakan enctype
+     multipart/form-data agar file gambar bisa ikut dikirim.
+   - @csrf adalah token perlindungan form Laravel.
+
+   Nama kategori/brand yang terlihat di layar bukan nilai yang dipercaya server.
+   Yang dikirim sebagai relasi adalah ID di input tersembunyi. Backend tetap
+   memeriksa ID itu benar-benar ada di database.
+
+3. resources/js/app.js
+   JavaScript ini hanya untuk interaksi pencarian di browser, bukan untuk
+   memvalidasi atau menyimpan produk ke database.
+
+   Saat kotak pencarian difokuskan atau teksnya berubah:
+   - Menunggu sekitar 250 ms setelah admin berhenti mengetik (debounce).
+   - Mengirim GET ke /admin/products/create dengan parameter type dan search,
+     serta header Accept: application/json.
+   - Menampilkan maksimal 10 hasil yang dikembalikan server.
+   - Bisa dinavigasi dengan tombol panah dan dipilih dengan Enter atau klik.
+
+   Saat satu hasil dipilih:
+   - Nama pilihan ditampilkan pada kotak pencarian.
+   - ID pilihan dimasukkan ke input tersembunyi category_id atau brand_id.
+   - Daftar hasil ditutup.
+   - Jika admin mengubah teks setelah memilih, ID lama dikosongkan agar nama
+     baru tidak terkirim memakai ID pilihan sebelumnya.
+
+   JavaScript diperlukan agar daftar berisi ribuan brand tidak perlu diunduh
+   semua sekaligus. JavaScript tidak memasukkan hasil ke database. Jika JavaScript
+   tidak berjalan, pencarian dinamis tidak bisa dipakai; form juga tidak dapat
+   mengirim pilihan kategori yang valid tanpa category_id.
+
+4. app/Http/Controllers/Admin/ProductController.php
+   Controller menghubungkan request browser dengan query database dan response.
+
+   create():
+   - Request HTML biasa: menampilkan form.
+   - Jika request mengharapkan JSON: memvalidasi type (category/brand) dan search,
+     mencari nama yang cocok, mengambil maksimal 11 baris (10 hasil dan satu
+     baris ekstra untuk menentukan has_more), lalu mengirim id dan name sebagai JSON.
+   - Jika penyimpanan sebelumnya gagal validasi, mencari kategori/brand dari ID
+     old input supaya pilihan sebelumnya dapat ditampilkan kembali.
+
+   store():
+   - Memastikan category_id ada di tabel categories; brand_id boleh kosong,
+     tetapi jika diisi harus ada di tabel brands.
+   - Memvalidasi nama, harga, stok, deskripsi, dan gambar.
+   - Jika gambar dikirim, kode saat ini mencoba mengonversinya menjadi WebP dan
+     menyimpan path gambar pada produk.
+   - Mengambil kode kategori dan membuat SKU dengan format:
+       KODE-KATEGORI-4-KARAKTER-ACAK
+     Contoh: SMN-001-X7R2.
+   - Memeriksa apakah SKU sudah dipakai; jika iya, membuat kode acak lain.
+   - Membuat record produk dan mengarahkan admin ke daftar produk.
+
+5. app/Models/Product.php
+   Mendefinisikan field produk yang boleh disimpan melalui Eloquent
+   (fillable), serta relasi:
+   - product belongsTo category
+   - product belongsTo brand
+
+   Bentuk nama model di kode saat ini adalah class product dengan huruf p kecil.
+   Itu bukan bagian dari alur form, hanya penamaan model yang sedang dipakai.
+
+6. Database/migrations
+   - 2026_11_02_082035_create_products_table.php membuat tabel products.
+     category_id adalah foreign key wajib; SKU unik; harga, stok, gambar,
+     deskripsi, status aktif, dan timestamps disimpan di tabel ini.
+   - 2026_11_04_000001_create_brands_table.php membuat tabel brands dan
+     menambahkan products.brand_id yang boleh null. Jika brand dihapus,
+     brand_id produk menjadi null.
+   - Jika kategori dihapus, aturan migration produk saat ini menghapus produk
+     yang memakai kategori itu (cascadeOnDelete).
+
+7. resources/views/admin/products/index.blade.php
+   Menampilkan produk tersimpan, relasi nama kategori/brand, SKU, stok, harga,
+   status, pencarian, serta pagination.
+
+URUTAN REQUEST KETIKA ADMIN MENCARI PILIHAN
+-------------------------------------------
+Browser --GET /admin/products/create?type=brand&search=roda + Accept: application/json--> Laravel
+Laravel --query tabel brands, hasil maksimal 10 + penanda has_more--> Browser
+JavaScript menampilkan nama brand sebagai opsi.
+Admin memilih opsi.
+JavaScript mengisi brand-search (nama) dan input hidden brand_id (ID).
+
+URUTAN REQUEST KETIKA ADMIN MENYIMPAN PRODUK
+--------------------------------------------
+Browser --POST /admin/products, termasuk category_id dan brand_id--> Laravel
+Laravel memvalidasi input.
+Laravel membentuk SKU dan menyimpan record products.
+Laravel --redirect ke /admin/products + pesan berhasil--> Browser
+Browser memuat halaman daftar produk.
+
+PERBEDAAN RENCANA DAN KODE YANG BERJALAN
+----------------------------------------
+Catatan kategori di atas pernah menyebut rumus SKU "kode kategori ditambah kode
+brand". Itu adalah ide/rencana, bukan perilaku ProductController saat ini.
+Implementasi sekarang TIDAK memakai kode brand untuk SKU. SKU memakai kode
+kategori ditambah 4 karakter acak, misalnya SMN-001-X7R2.
+
+Di produk yang sekarang, brand adalah relasi opsional untuk menampilkan/mengelompokkan
+produk, tetapi tidak mengubah SKU. Kalau aturan SKU harus memakai kode brand, alur
+store() perlu diubah terpisah setelah format yang diinginkan dipastikan.
+
+CATATAN STRUKTUR YANG PERLU DICEK
+---------------------------------
+Category.php mendefinisikan relasi categories -> brands yang secara default
+mengharapkan kolom brands.category_id. Namun migration create_brands_table.php yang
+ada sekarang tidak membuat kolom itu, sementara ProductTest.php masih membuat brand
+dengan category_id. Jadi relasi kategori-brand tersebut belum konsisten dengan
+struktur tabel saat ini. Pencarian brand untuk form produk tidak memakai relasi itu;
+ia mencari langsung berdasarkan nama brand.
+
+ISTILAH CEPAT
+-------------
+- Blade: template HTML Laravel untuk tampilan.
+- Route: alamat URL yang menunjuk ke controller.
+- Controller: logika backend yang menerima request, validasi, query, dan response.
+- JavaScript: perilaku di browser, di sini untuk mencari dan memilih opsi.
+- ID: nomor internal record database; relasi produk menyimpan ID, bukan teks nama.
+- JSON: format data yang dipakai response pencarian dari backend ke browser.
+- Migration: file yang mendefinisikan struktur/perubahan tabel database.

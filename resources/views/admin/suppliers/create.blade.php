@@ -16,17 +16,17 @@
     <div class="rounded-lg border border-[#e2dac8] bg-white p-5 sm:p-6">
         <div class="grid gap-4 sm:grid-cols-2">
             <label class="text-[12px] font-medium text-[#3a352d]">Nama supplier
-                <input name="name"  type="text" value = "{{ old('name') }}" placeholder="Nama perusahaan" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                <input name="name"  type="text" value = "{{ old('name') }}" placeholder="Masukkan nama supplier" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
             </label>
     
             <label class="text-[12px] font-medium text-[#3a352d]">Nomor telepon
-                <input name="phone" type="number" value= "{{ old('phone') }}" placeholder="Nomor kontak" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                <input name="phone" type="number" value= "{{ old('phone') }}" placeholder="Masukkan nomor telepon supplier" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
             </label>
             <label class="text-[12px] font-medium text-[#3a352d]">Email
-                <input name="email" type="email" value="{{ old('email') }}" placeholder="supplier@email.com" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
+                <input name="email" type="email" value="{{ old('email') }}" placeholder="Masukkan alamat email supplier" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">
             </label>
             <label class="text-[12px] font-medium text-[#3a352d] sm:col-span-2">Alamat
-                <textarea name="address" rows="3" value="{{ old('address') }}" placeholder="Alamat supplier" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"></textarea>
+                <textarea name="address" rows="3" value="{{ old('address') }}" placeholder="Masukkan alamat supplier" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"></textarea>
             </label>
         </div>
         <div class="mt-6 flex justify-end gap-2 border-t border-[#e2dac8] pt-4">

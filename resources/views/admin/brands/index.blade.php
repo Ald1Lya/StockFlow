@@ -36,7 +36,7 @@
                 name="search"
                 value="{{ $search }}"
                 maxlength="100"
-                placeholder="Cari nama atau kode brand..."
+                placeholder="Cari berdasarkan nama atau kode brand..."
                 class="w-full rounded-md border border-[#e2dac8] bg-white py-2 pl-9 pr-3 text-[12.5px] text-[#3a352d] placeholder:text-[#a89f8e] focus:border-[#c9934a] focus:outline-none focus:ring-2 focus:ring-[#c9934a]/15"
             >
         </div>
@@ -61,9 +61,10 @@
                 <table class="w-full border-collapse text-left">
                     <thead>
                         <tr class="border-b border-[#e2dac8] bg-[#f7f4ee]">
-                            <th scope="col" class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Nama Brand</th>
+                            <th scope="col" class="w-12 px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">No.</th>
                             <th scope="col" class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Kode</th>
-                            <th scope="col" class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Kategori</th>
+                            <th scope="col" class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Nama Brand</th>
+                            <th scope="col" class="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Deskripsi</th>
                             <th scope="col" class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Produk</th>
                             <th scope="col" class="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8a8073]">Aksi</th>
                         </tr>
@@ -71,29 +72,45 @@
                     <tbody>
                         @foreach ($brands as $brand)
                             <tr class="border-b border-[#f0ebdf] last:border-b-0 hover:bg-[#faf8f3]">
-                                <td class="px-4 py-3 text-[13px] font-medium text-[#161410]">{{ $brand->name }}</td>
-                                <td class="px-4 py-3 font-mono text-[11.5px] text-[#7a7264]">{{ $brand->code }}</td>
-                                <td class="px-4 py-3 text-[12.5px] text-[#3a352d]">{{ $brand->category?->name ?? 'Kategori dihapus' }}</td>
-                                <td class="px-4 py-3 text-right font-mono text-[13px] font-semibold tnum text-[#161410]">{{ $brand->products_count }}</td>
-                                <td class="px-4 py-3">
+                                <td class="w-12 px-4 py-3 font-mono text-[11.5px] text-[#8a8073]">
+                                    {{ ($brands->firstItem() ?? 0) + $loop->index }}
+                                </td>
+                                <td class="px-4 py-3 font-mono text-[12px] font-semibold text-[#161410]">
+                                    {{ $brand->code }}
+                                </td>
+                                <td class="px-4 py-3 text-[13px] font-medium text-[#161410]">
+                                    {{ $brand->name }}
+                                </td>
+                                <td class="max-w-[260px] px-4 py-3 text-[12.5px] text-[#554e44]">
+                                    @if ($brand->description)
+                                        <span class="line-clamp-2" title="{{ $brand->description }}">{{ $brand->description }}</span>
+                                    @else
+                                        <span class="italic text-[#a89f8e]">Tidak ada deskripsi</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 text-right font-mono text-[13px] font-semibold tnum text-[#161410]">
+                                    {{ $brand->products_count }}
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <a href="{{ route('admin.brands.edit', $brand) }}" class="rounded-md px-3 py-1.5 text-[12.5px] font-medium text-[#a67b3f] hover:bg-[#f7f4ee] hover:text-[#161410]">
                                             Edit
                                         </a>
-                                        <button
-                                            type="submit"
-                                            form="delete-brand-{{ $brand->id }}"
-                                            onclick="return confirm('Hapus brand ini? Produk terkait tetap tersimpan tanpa brand.')"
-                                            class="rounded-md px-3 py-1.5 text-[12.5px] font-medium text-red-600 hover:bg-red-50"
-                                        >
-                                            Hapus
-                                        </button>
-                                    </div>
-                                    <form id="delete-brand-{{ $brand->id }}" action="{{ route('admin.brands.destroy', $brand) }}" method="POST" class="hidden">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </td>
+
+                                            <form action="{{ route('admin.brands.destroy', $brand) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                    class="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                                                    aria-label="Hapus Brand {{ $brand->name }}">
+                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12m-10 0 .7 12h6.6L16 7M9 7V4h6v3m-5 3v6m4-6v6" />
+                                                    </svg>
+                                                    Hapus
+                                                </button>
+                                            </form>
+
                             </tr>
                         @endforeach
                     </tbody>

@@ -27,7 +27,7 @@
 
                 
                 <form method="GET" action="{{ route('admin.suppliers.index') }}" class="mb-4 flex flex-wrap items-center gap-2">
-                    <label for="category-search" class="sr-only">Cari kategori berdasarkan nama atau kode</label>
+                    <label for="category-search" class="sr-only">Cari Nama Suplier</label>
                     <div class="relative w-full sm:max-w-sm">
                         <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a8073]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"/>
@@ -38,7 +38,7 @@
                             name="search"
                             value="{{ $search }}"
                             maxlength="100"
-                            placeholder="Cari nama atau kode kategori..."
+                            placeholder="Cari nama supplier..."
                             class="w-full rounded-md border border-[#e2dac8] bg-white py-2 pl-9 pr-3 text-[12.5px] text-[#3a352d] placeholder:text-[#a89f8e] focus:border-[#c9934a] focus:outline-none focus:ring-2 focus:ring-[#c9934a]/15"
                         >
                     </div>
@@ -57,7 +57,7 @@
                         <table class="w-full text-left text-[12.5px]">
                           <thead>
                             <tr class="border-b border-[#e2dac8] bg-[#f7f4ee]/60 text-[10.5px] uppercase tracking-wider text-[#8a8073]">
-                                <th class="px-5 py-3 font-semibold">Kode</th>
+                                <th class="px-5 py-3 font-semibold">No.</th>
                                 <th class="px-3 py-3 font-semibold">Nama Supplier</th>
                                 <th class="px-3 py-3 font-semibold">Kontak</th>
                                 <th class="px-3 py-3 font-semibold">Alamat</th>
@@ -70,10 +70,10 @@
                             @forelse ($suppliers as $supplier)
 
                                 <tr class="hover:bg-[#f7f4ee]/50">
-
-                                    <td class="px-5 py-3 font-mono text-[11.5px] text-[#161410]">
-                                        {{ $supplier->code }}
+                                    <td class="px-5 py-3 font-mono text-[11.5px] text-[#8a8073]">
+                                        {{ ($suppliers->firstItem() ?? 0) + $loop->index }}
                                     </td>
+
 
                                     <td class="px-3 py-3 font-medium">
                                         {{ $supplier->name }}
@@ -113,12 +113,12 @@
                             @empty
 
                                 <tr>
-                                    <td colspan="5" class="px-4 py-10 text-center">
+                                    <td colspan="6" class="px-4 py-10 text-center">
                                         <p class="text-sm font-medium text-[#3a352d]">
                                             Supplier tidak ditemukan
                                         </p>
                                         <p class="mt-1 text-[12.5px] text-[#7a7264]">
-                                            Coba kata kunci nama atau kode yang berbeda.
+                                            Coba kata kunci nama supplier
                                         </p>
                                     </td>
                                 </tr>

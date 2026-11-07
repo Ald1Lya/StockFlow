@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('name')->unique();
             $table->string('code')->unique();
             $table->text('description')->nullable();

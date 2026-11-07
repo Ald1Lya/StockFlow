@@ -3,6 +3,7 @@
 @section('page-title', 'Brand Baru')
 
 @section('content')
+
 <section class="mx-auto max-w-2xl">
     <div class="mb-5">
         <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a67b3f]">Master Data / Tambah Brand</div>
@@ -25,21 +26,6 @@
             @endif
 
             <div class="grid gap-4">
-                <label class="text-[12px] font-medium text-[#3a352d]">
-                    Kategori
-                    <select
-                        name="category_id"
-                        required
-                        class="mt-1.5 w-full rounded-md border border-[#e2dac8] bg-white px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
-                    >
-                        <option value="">Pilih kategori</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </label>
 
                 <label class="text-[12px] font-medium text-[#3a352d]">
                     Nama brand
@@ -47,7 +33,7 @@
                         type="text"
                         name="name"
                         value="{{ old('name') }}"
-                        placeholder="Contoh: Semen Tiga Roda"
+                        placeholder="Masukkan nama brand"
                         maxlength="255"
                         required
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
@@ -57,16 +43,16 @@
                 <p class="text-[11px] text-[#8a8073]">
                     
                 </p>
-{{-- 
                 <label class="text-[12px] font-medium text-[#3a352d]">
                     Deskripsi
                     <textarea
                         name="description"
                         rows="3"
-                        placeholder="Keterangan brand (opsional)"
+                        placeholder="Masukkan deskripsi brand (opsional)"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >{{ old('description') }}</textarea>
-                </label> --}}
+                </label>
+
             </div>
 
             <div class="mt-6 flex justify-end gap-2 border-t border-[#e2dac8] pt-4">
@@ -80,4 +66,5 @@
         </form>
     </div>
 </section>
+
 @endsection

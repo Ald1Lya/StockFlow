@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-it('updates a category without requiring its read-only code', function () {
+it('does not expose category edit or update actions', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $category = Category::create([
         'name' => 'Aksesoris',
@@ -16,19 +16,34 @@ it('updates a category without requiring its read-only code', function () {
     ]);
 
     $this->actingAs($admin)
-        ->put(route('admin.categories.update', $category), [
-            'name' => 'Aksesoris Rumah',
-            'description' => 'Deskripsi baru',
-        ])
-        ->assertRedirect(route('admin.categories.index'))
-        ->assertSessionHas('success', 'Kategori berhasil diperbarui.');
+        ->get("/admin/categories/{$category->id}/edit")
+        ->assertNotFound();
 
-    $this->assertDatabaseHas('categories', [
-        'id' => $category->id,
-        'name' => 'Aksesoris Rumah',
+    $this->actingAs($admin)
+        ->put("/admin/categories/{$category->id}", ['name' => 'Aksesoris Rumah'])
+        ->assertMethodNotAllowed();
+});
+
+it('deletes categories from the index page', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $category = Category::create([
+        'name' => 'Aksesoris',
+        'slug' => 'aksesoris-001',
         'code' => 'CT-AKS',
-        'description' => 'Deskripsi baru',
     ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.categories.index'))
+        ->assertOk()
+        ->assertSee('action="'.route('admin.categories.destroy', $category).'"', false)
+        ->assertSee('Hapus kategori Aksesoris');
+
+    $this->actingAs($admin)
+        ->delete(route('admin.categories.destroy', $category))
+        ->assertRedirect(route('admin.categories.index'))
+        ->assertSessionHas('success', 'Kategori Berhasil Dihapus.');
+
+    $this->assertDatabaseMissing('categories', ['id' => $category->id]);
 });
 
 it('searches categories by name or code', function (string $search) {

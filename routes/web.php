@@ -46,7 +46,7 @@ Route::middleware(['auth', 'role:admin'])
         // Url Crud Supplier Admin
         Route::resource('suppliers', SupplierController::class);
 
-        // Url Crud Poduct Admin
+        // CRUD produk admin
         Route::resource('products', ProductController::class);
 
         Route::view('/reports/sales', 'admin.reports.sales')->name('reports.sales');

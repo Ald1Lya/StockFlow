@@ -26,21 +26,7 @@
             @endif
 
             <div class="grid gap-4">
-                <label class="text-[12px] font-medium text-[#3a352d]">
-                    Kategori
-                    <select
-                        name="category_id"
-                        required
-                        class="mt-1.5 w-full rounded-md border border-[#e2dac8] bg-white px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
-                    >
-                        <option value="">Pilih kategori</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" @selected(old('category_id', $brand->category_id) == $category->id)>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </label>
+
 
                 <label class="text-[12px] font-medium text-[#3a352d]">
                     Nama brand
@@ -67,16 +53,16 @@
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] bg-[#f7f4ee] px-3 py-2 text-[13px]"
                     >
                 </label>
-{{-- 
+
                 <label class="text-[12px] font-medium text-[#3a352d]">
                     Deskripsi
                     <textarea
                         name="description"
                         rows="3"
-                        placeholder="Keterangan brand (opsional)"
+                        placeholder="Masukkan deskripsi brand (opsional)"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >{{ old('description', $brand->description) }}</textarea>
-                </label> --}}
+                </label>
             </div>
 
             <div class="mt-6 flex flex-wrap justify-between gap-2 border-t border-[#e2dac8] pt-4">

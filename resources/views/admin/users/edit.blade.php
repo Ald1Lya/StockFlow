@@ -103,7 +103,7 @@
                         type="password"
                         name="password"
                         autocomplete="new-password"
-                        placeholder="Kosongkan jika tidak diubah"
+                        placeholder="Kosongkan jika kata sandi tidak diubah"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >
 
@@ -122,7 +122,7 @@
                         type="password"
                         name="password_confirmation"
                         autocomplete="new-password"
-                        placeholder="Ulangi password baru"
+                        placeholder="Masukkan kembali kata sandi baru"
                         class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none"
                     >
                 </label>
