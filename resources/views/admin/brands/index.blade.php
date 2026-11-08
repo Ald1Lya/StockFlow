@@ -118,8 +118,13 @@
             </div>
         </div>
 
-        <div class="mt-5">
-            {{ $brands->links() }}
+        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-[11.5px] text-[#7a7264]">
+                Menampilkan {{ $brands->firstItem() }}–{{ $brands->lastItem() }} dari {{ $brands->total() }} brand
+            </p>
+            @if ($brands->hasPages())
+                {{ $brands->links() }}
+            @endif
         </div>
     @endif
 </section>

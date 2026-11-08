@@ -69,7 +69,7 @@ it('searches categories by name or code', function (string $search) {
     'category code' => 'CT-AKS',
 ]);
 
-it('paginates category search results and preserves the search term', function () {
+it('shows all matching category results without pagination', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
     foreach (range(1, 11) as $number) {
@@ -83,7 +83,8 @@ it('paginates category search results and preserves the search term', function (
     $this->actingAs($admin)
         ->get(route('admin.categories.index', ['search' => 'Peralatan']))
         ->assertOk()
-        ->assertViewHas('categories', fn ($categories) => $categories->total() === 11
-            && $categories->count() === 10
-            && str_contains($categories->url(2), 'search=Peralatan'));
+        ->assertSee('Peralatan 01')
+        ->assertSee('Peralatan 11')
+        ->assertDontSee('page=2')
+        ->assertViewHas('categories', fn ($categories) => $categories->count() === 11);
 });

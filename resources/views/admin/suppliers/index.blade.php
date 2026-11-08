@@ -17,7 +17,6 @@
                 <div>
                         <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a67b3f]">Master Data</div>
                         <h1 class="mt-1 text-2xl font-semibold tracking-tight text-[#161410]">Supplier</h1>
-                        <p class="mt-1 text-[13px] text-[#7a7264]">6 supplier aktif</p>
                     </div>
                     <a href="{{ route('admin.suppliers.create') }}" class="inline-flex items-center gap-1.5 rounded-md bg-[#161410] px-3 py-2 text-[12.5px] font-semibold text-[#ece7dd] hover:bg-[#2a2520]">
                         <svg class="h-3.5 w-3.5 text-[#c9934a]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
@@ -130,9 +129,11 @@
                         </table>
                         <div class="mt-4 flex flex-col gap-3 border-t border-[#e2dac8] pt-4 sm:flex-row sm:items-center sm:justify-between">
                             <p class="text-[11.5px] text-[#7a7264]">
-                            Menampilkan {{ $suppliers->firstItem() ?? 0 }}–{{ $suppliers->lastItem() ?? 0 }} dari {{ $suppliers->total() }} pengguna
+                                Menampilkan {{ $suppliers->firstItem() ?? 0 }}–{{ $suppliers->lastItem() ?? 0 }} dari {{ $suppliers->total() }} supplier
                             </p>
-                             {{ $suppliers->links() }}
+                            @if ($suppliers->hasPages())
+                                {{ $suppliers->links() }}
+                            @endif
                         </div>
      
 

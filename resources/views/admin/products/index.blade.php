@@ -4,11 +4,12 @@
 
 @section('content')
 <section>
-    @if (session('success'))
-        <x-alert type="success" class="mb-4">
-            {{ session('success') }}
-        </x-alert>
-    @endif
+<x-modal
+    :show="session()->has('success')"
+    title="Berhasil"
+    :message="session('success', '')"
+    action-text="Oke, mengerti"
+/>
 
     <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -34,53 +35,69 @@
             Cari
         </button>
     </form>
-
-    <div class="overflow-hidden rounded-lg border border-[#e2dac8] bg-white">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-[12.5px]">
-                <thead>
-                    <tr class="border-b border-[#e2dac8] bg-[#f7f4ee]/60 text-[10.5px] uppercase tracking-wider text-[#8a8073]">
-                        <th class="px-5 py-3 font-semibold">No.</th>
-                        <th class="px-5 py-3 font-semibold">SKU</th>
-                        <th class="px-3 py-3 font-semibold">Nama Produk</th>
-                        <th class="px-3 py-3 font-semibold">Kategori</th>
-                        <th class="px-3 py-3 font-semibold">Brand</th>
-                        <th class="px-3 py-3 font-semibold">Stok</th>
-                        <th class="px-3 py-3 font-semibold">Harga Jual</th>
-                        <th class="px-5 py-3 font-semibold">Status</th>
+    
+<div class="overflow-hidden rounded-lg border border-[#e2dac8] bg-white">
+    <div class="overflow-x-auto">
+        <table class="w-full min-w-full table-auto border-collapse text-left text-[12.5px]">
+            <thead>
+                <tr class="border-b border-[#e2dac8] bg-[#f7f4ee] text-[10.5px] uppercase tracking-wider text-[#8a8073]">
+                    <th class="px-5 py-3 font-semibold">No.</th>
+                    <th class="px-5 py-3 font-semibold">SKU</th>
+                    <th class="px-3 py-3 font-semibold">Nama Produk</th>
+                    <th class="px-3 py-3 font-semibold">Kategori</th>
+                    <th class="px-3 py-3 font-semibold">Brand</th>
+                    <th class="px-3 py-3 font-semibold">Stok</th>
+                    <th class="px-3 py-3 font-semibold">Harga Jual</th>
+                    <th class="px-5 py-3 font-semibold">Status</th>
+                    <!-- Header Aksi diposisikan ke kanan -->
+                    <th class="px-5 py-3 text-right font-semibold">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e2dac8]/70 text-[#3a352d]">
+                @forelse ($products as $product)
+                    <tr class="hover:bg-[#f7f4ee]/50">
+                        <td class="px-5 py-3 font-mono text-[11.5px] text-[#8a8073]">{{ ($products->firstItem() ?? 0) + $loop->index }}</td>
+                        <td class="px-5 py-3 font-mono text-[11.5px] font-medium text-[#161410]">{{ $product->sku }}</td>
+                        <td class="px-3 py-3 font-medium">{{ $product->name }}</td>
+                        <td class="px-3 py-3 text-[11.5px] text-[#7a7264]">{{ $product->category->name }}</td>
+                        <td class="px-3 py-3 text-[11.5px] text-[#7a7264]">{{ $product->brand?->name ?? '-' }}</td>
+                        <td class="px-3 py-3 font-mono tnum">{{ $product->stock }} <span class="text-[10px] text-[#a89f8e]">/ min {{ $product->min_stock }}</span></td>
+                        <td class="px-3 py-3 font-mono tnum">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
+                        <td class="px-5 py-3">
+                            <span class="rounded px-1.5 py-0.5 text-[10.5px] font-semibold {{ $product->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
+                                {{ $product->is_active ? 'Aktif' : 'Nonaktif' }}
+                            </span>
+                        </td>
+                        <!-- KUNCI PERBAIKAN: Tombol Edit & Hapus disatukan dalam satu <td> dan dibuat rata kanan -->
+                        <td class="px-5 py-3 text-right">
+                            <div class="inline-flex items-center justify-end gap-2">
+                                <a href="{{ route('admin.products.edit', $product) }}" class="rounded-md border border-[#e2dac8] px-2.5 py-1.5 text-[11.5px] font-medium text-[#3a352d] hover:bg-[#f7f4ee]">
+                                    Edit
+                                </a>
+                                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 text-[11.5px] font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                                        aria-label="Hapus kategori {{ $product->name }}">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-[#e2dac8]/70 text-[#3a352d]">
-                    @forelse ($products as $product)
-                        <tr class="hover:bg-[#f7f4ee]/50">
-                            <td class="px-5 py-3 font-mono text-[11.5px] text-[#8a8073]">{{ ($products->firstItem() ?? 0) + $loop->index }}</td>
-                            <td class="px-5 py-3 font-mono text-[11.5px] font-medium text-[#161410]">{{ $product->sku }}</td>
-                            <td class="px-3 py-3 font-medium">{{ $product->name }}</td>
-                            <td class="px-3 py-3 text-[11.5px] text-[#7a7264]">{{ $product->category->name }}</td>
-                            <td class="px-3 py-3 text-[11.5px] text-[#7a7264]">{{ $product->brand?->name ?? '-' }}</td>
-                            <td class="px-3 py-3 font-mono tnum">{{ $product->stock }} <span class="text-[10px] text-[#a89f8e]">/ min {{ $product->min_stock }}</span></td>
-                            <td class="px-3 py-3 font-mono tnum">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
-                            <td class="px-5 py-3">
-                                <span class="rounded px-1.5 py-0.5 text-[10.5px] font-semibold {{ $product->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600' }}">
-                                    {{ $product->is_active ? 'Aktif' : 'Nonaktif' }}
-                                </span>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="px-5 py-8 text-center text-[12.5px] text-[#7a7264]">
-                                {{ $search !== '' ? 'Produk tidak ditemukan.' : 'Belum ada produk. Tambahkan produk pertama Anda.' }}
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if ($products->hasPages())
-            <div class="border-t border-[#e2dac8] px-5 py-3">
-                {{ $products->links() }}
-            </div>
-        @endif
+                @empty
+                    <tr>
+                        <!-- Disesuaikan menjadi colspan="9" agar pas menutupi seluruh kolom -->
+                        <td colspan="9" class="px-5 py-8 text-center text-[12.5px] text-[#7a7264]">
+                            {{ $search !== '' ? 'Produk tidak ditemukan.' : 'Belum ada produk. Tambahkan produk pertama Anda.' }}
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+</div>
+
 </section>
 @endsection

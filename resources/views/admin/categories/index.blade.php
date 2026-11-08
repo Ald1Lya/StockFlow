@@ -16,7 +16,7 @@
             <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#a67b3f]">Master Data</div>
             <h1 class="mt-1 text-2xl font-semibold tracking-tight text-[#161410]">Kategori Produk</h1>
             <p class="mt-1 text-[13px] text-[#7a7264]">
-                {{ $categories->total() }} kategori ditemukan
+                {{ $categories->count() }} kategori ditemukan
             </p>
         </div>
 
@@ -65,7 +65,7 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-[10px] text-[#a89f8e]">
-                                {{ ($categories->firstItem() ?? 0) + $loop->index }}.
+                                {{ $loop->iteration }}.
                             </span>
                             <span class="text-[11.5px] uppercase tracking-wider text-[#8a8073]">
                                 {{ $category->name }}
@@ -87,23 +87,27 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('admin.categories.destroy', $category) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('admin.categories.edit', $category) }}"
+                                class="inline-flex items-center gap-1.5 rounded-md border border-[#e2dac8] px-3 py-1.5 text-[11.5px] font-medium text-[#3a352d] transition hover:border-[#c9934a] hover:text-[#c9934a]"
+                                aria-label="Edit kategori {{ $category->name }}">
+                                Edit
+                            </a>
 
-                            <button type="submit"
-                                class="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 text-[11.5px] font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
-                                aria-label="Hapus kategori {{ $category->name }}">
-                                Hapus
-                            </button>
-                        </form>
+                            <form action="{{ route('admin.categories.destroy', $category) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit"
+                                    class="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-3 py-1.5 text-[11.5px] font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+                                    aria-label="Hapus kategori {{ $category->name }}">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @endforeach
-        </div>
-
-        <div class="mt-5">
-            {{ $categories->links() }}
         </div>
     @endif
 </section>

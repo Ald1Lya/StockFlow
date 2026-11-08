@@ -15,21 +15,5 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamps();
         });
-
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('brand_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
-        });
-    }
-
-    public function down(): void
-    {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('brand_id');
-        });
-
-        Schema::dropIfExists('brands');
     }
 };

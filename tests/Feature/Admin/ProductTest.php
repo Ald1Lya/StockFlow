@@ -71,6 +71,92 @@ it('limits product form search results to ten options', function () {
         ->assertJsonPath('has_more', true);
 });
 
+it('shows the existing product values in the edit form', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $category = Category::create([
+        'name' => 'Semen',
+        'slug' => 'semen-001',
+        'code' => 'SMN-001',
+    ]);
+    $brand = Brand::create([
+        'name' => 'Tiga Roda',
+        'code' => 'SEM-TR',
+    ]);
+    $product = \App\Models\Product::create([
+        'category_id' => $category->id,
+        'brand_id' => $brand->id,
+        'sku' => 'SMN-001-SEM-TR-X7R2',
+        'name' => 'Semen Portland',
+        'description' => 'Untuk konstruksi.',
+        'cost_price' => 50000,
+        'selling_price' => 75000,
+        'stock' => 10,
+        'min_stock' => 2,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.products.edit', $product))
+        ->assertOk()
+        ->assertSee('Semen Portland')
+        ->assertSee('Semen')
+        ->assertSee('Tiga Roda')
+        ->assertSee('name="stock" type="number" min="0" value="10"', false)
+        ->assertSee('name="is_active" type="checkbox" value="1" checked', false)
+        ->assertSee(route('admin.products.update', $product));
+});
+
+it('updates an existing product from the edit form', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $category = Category::create([
+        'name' => 'Semen',
+        'slug' => 'semen-001',
+        'code' => 'SMN-001',
+    ]);
+    $brand = Brand::create([
+        'name' => 'Tiga Roda',
+        'code' => 'SEM-TR',
+    ]);
+    $product = \App\Models\Product::create([
+        'category_id' => $category->id,
+        'brand_id' => $brand->id,
+        'sku' => 'SMN-001-SEM-TR-X7R2',
+        'name' => 'Semen Portland',
+        'description' => 'Deskripsi lama.',
+        'cost_price' => 50000,
+        'selling_price' => 75000,
+        'stock' => 10,
+        'min_stock' => 2,
+        'is_active' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('admin.products.update', $product), [
+            'category_id' => $category->id,
+            'brand_id' => $brand->id,
+            'name' => 'Semen Portland Premium',
+            'description' => 'Deskripsi terbaru.',
+            'cost_price' => 60000,
+            'selling_price' => 85000,
+            'stock' => 12,
+            'min_stock' => 3,
+            'is_active' => '1',
+        ])
+        ->assertRedirect(route('admin.products.index'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('products', [
+        'id' => $product->id,
+        'name' => 'Semen Portland Premium',
+        'description' => 'Deskripsi terbaru.',
+        'cost_price' => 60000,
+        'selling_price' => 85000,
+        'stock' => 12,
+        'min_stock' => 3,
+        'is_active' => true,
+    ]);
+});
+
 it('creates a product and displays it in the product list', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $category = Category::create([

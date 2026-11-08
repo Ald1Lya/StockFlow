@@ -120,7 +120,9 @@
                     <p class="text-[11.5px] text-[#7a7264]">
                         Menampilkan {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} dari {{ $users->total() }} pengguna
                     </p>
-                    {{ $users->links() }}
+                    @if ($users->hasPages())
+                        {{ $users->links() }}
+                    @endif
                 </div>
 </section>
 @endsection

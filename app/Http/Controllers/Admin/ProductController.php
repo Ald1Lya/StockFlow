@@ -175,25 +175,28 @@ class ProductController extends Controller
         // Jika form tidak mengirim status, tetapkan produk sebagai aktif.
         $data['is_active'] = $request->has('is_active') ? $request->input('is_active') : true;
 
-        // LOGIKA GENERATE SKU (PINDAHAN DARI SUPPLIER)
-        // Ambil data kategori berdasarkan category_id yang dipilih user
+        // LOGIKA GENERATE SKU
         $category = Category::findOrFail($data['category_id']);
-        // Gunakan kode kategori sebagai prefix (Misal di db kategori baju kodenya "BAJU")
-        $prefix = strtoupper($category->code);
+        $prefixKategori = strtoupper($category->code);
 
-        // LOGIKA GENERATE KODE ACAK YANG AMAN (ANTI-KEMBAR)
+        $prefixBrand = '';
+        if (!empty($data['brand_id'])) {
+            $brand = Brand::findOrFail($data['brand_id']);
+            $prefixBrand = strtoupper($brand->code);
+        }
+
         do {
-            // Membuat 4 karakter alfanumerik acak huruf besar (Contoh: X7R2)
-            $randomString = strtoupper(Str::random(4));
-            $generatedSku = $prefix.'-'.$randomString; // Hasil: "BAJU-X7R2"
+            $randomStr    = strtoupper(Str::random(4));
+            $generatedSku = $prefixBrand !== ''
+                ? $prefixKategori . '-' . $prefixBrand . '-' . $randomStr
+                : $prefixKategori . '-' . $randomStr;
 
-            // Cek ke database tabel PRODUCTS apakah SKU ini sudah pernah dipakai
             $skuExists = Product::where('sku', $generatedSku)->exists();
-        } while ($skuExists); // Jika sudah ada, loop ulang sampai dapat yang unik
+        } while ($skuExists);
 
         // Masukkan SKU yang sudah pasti unik ke dalam array data sebelum disave
         $data['sku'] = $generatedSku;
-
+                    
         // 3. Simpan ke Database
         // Buat record produk; atributnya dibatasi oleh fillable pada model Product.
         Product::create($data);
@@ -205,4 +208,145 @@ class ProductController extends Controller
             ->with('success', 'Produk berhasil ditambahkan dengan SKU: '.$generatedSku);
 
     }
+
+
+
+        public function edit(Product $product)
+    {
+        // Gunakan product dari route model binding untuk mengisi form edit.
+        return view('admin.products.edit', [
+            'product' => $product,
+        ]);
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        // 1. Validasi data dari form
+        $data = $request->validate([
+            'category_id'  => 'required|exists:categories,id',
+            'brand_id'     => 'nullable|exists:brands,id',
+            'name'         => 'required|string|max:255',
+            'description'  => 'nullable|string',
+            'image'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'cost_price'   => 'required|numeric|min:0',
+            'selling_price'=> 'required|numeric|min:0',
+            'stock'        => 'required|integer|min:0',
+            'min_stock'    => 'required|integer|min:0',
+        ]);
+
+        // 2. Atur status aktif — checkbox tidak mengirim value jika tidak dicentang,
+        //    sehingga tidak boleh masuk validasi; tangkap manual lalu paksa ke boolean.
+        $data['is_active'] = $request->boolean('is_active');
+
+        // 3. Cek apakah kategori atau brand berubah
+        $categoryChanged = $product->category_id != $data['category_id'];
+        $brandChanged = $product->brand_id != $data['brand_id'];
+
+        if ($categoryChanged || $brandChanged) {
+
+            $category = Category::findOrFail($data['category_id']);
+
+            $prefixKategori = strtoupper($category->code);
+
+            // Brand boleh kosong
+            $prefixBrand = '';
+
+            if (!empty($data['brand_id'])) {
+                $brand = Brand::findOrFail($data['brand_id']);
+                $prefixBrand = strtoupper($brand->code);
+            }
+
+            // Generate SKU baru
+            do {
+                $randomStr = strtoupper(Str::random(4));
+
+                $generatedSku = $prefixBrand !== ''
+                    ? $prefixKategori.'-'.$prefixBrand.'-'.$randomStr
+                    : $prefixKategori.'-'.$randomStr;
+
+                $skuExists = Product::where('sku', $generatedSku)
+                    ->where('id', '!=', $product->id)
+                    ->exists();
+
+            } while ($skuExists);
+
+            $data['sku'] = $generatedSku;
+        }
+
+        // 4. Proses gambar jika ada upload baru
+        if ($request->hasFile('image')) {
+
+                $file = $request->file('image');
+
+                $fileName = time().'_'.Str::random(10).'.webp';
+
+                $destinationPath = storage_path('app/public/products');
+
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+            }
+
+                $imageType = strtolower($file->getClientOriginalExtension());
+
+                switch ($imageType) {
+                    case 'jpeg':
+                    case 'jpg':
+                        $imageResource = imagecreatefromjpeg($file->getRealPath());
+                        break;
+
+                    case 'png':
+                        $imageResource = imagecreatefrompng($file->getRealPath());
+
+                        imagepalettetotruecolor($imageResource);
+                        imagealphablending($imageResource, true);
+                        imagesavealpha($imageResource, true);
+                        break;
+
+                    case 'webp':
+                        $imageResource = imagecreatefromwebp($file->getRealPath());
+                        break;
+
+                    default:
+                        return back()
+                            ->withErrors(['image' => 'Format gambar tidak didukung!'])
+                            ->withInput();
+            }
+
+            $fullPath = $destinationPath.'/'.$fileName;
+
+            imagewebp($imageResource, $fullPath, 80);
+
+            imagedestroy($imageResource);
+
+            // Hapus gambar lama
+            if ($product->image) {
+                $oldImage = storage_path('app/public/'.$product->image);
+                if (file_exists($oldImage)) {
+                        unlink($oldImage);
+                    }
+                }
+
+            // Simpan path gambar baru
+               $data['image'] = 'products/'.$fileName;
+            }
+                // 5. Update data produk
+                   $product->update($data);
+                    // 6. Redirect
+                    return redirect()
+                    ->route('admin.products.index')
+                    ->with('success', 'Produk berhasil diperbarui.');
+        }
+
+
+     public function destroy(Product $product)
+    {
+        // Hapus kategori; aturan foreign key database menentukan dampak ke produk terkait.
+        $product->delete();
+
+        // Arahkan admin kembali ke daftar kategori dengan pesan hasil.
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', 'Kategori Berhasil Dihapus.');
+    }
+
 }

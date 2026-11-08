@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use App\Models\product as Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -148,6 +149,24 @@ class BrandController extends Controller
 
         // Perbarui kolom brand dengan data yang lolos validasi.
         $brand->update($data);
+
+        // Jika kode brand berubah, regenerasi SKU semua produk yang pakai brand ini.
+        if (isset($data['code'])) {
+            $newBrandCode = strtoupper($data['code']);
+            $brand->products()->with('category')->each(function ($product) use ($newBrandCode) {
+                $categoryCode = strtoupper($product->category->code);
+
+                do {
+                    $randomStr = strtoupper(Str::random(4));
+                    $newSku    = $categoryCode . '-' . $newBrandCode . '-' . $randomStr;
+                    $skuExists = Product::where('sku', $newSku)
+                        ->where('id', '!=', $product->id)
+                        ->exists();
+                } while ($skuExists);
+
+                $product->update(['sku' => $newSku]);
+            });
+        }
 
         // Kembali ke daftar brand dengan notifikasi berhasil.
         return redirect()

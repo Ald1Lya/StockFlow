@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,6 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Redirect user yang sudah login ke dashboard sesuai role-nya.
+        $middleware->redirectUsersTo(function (Request $request) {
+            $role = Auth::user()?->role;
+
+            return match ($role) {
+                'admin'     => route('admin.dashboard'),
+                'warehouse' => route('warehouse.dashboard'),
+                'cashier'   => route('kasir.dashboard'),
+                default     => route('login'),
+            };
+        });
+
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
         ]);

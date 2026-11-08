@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Admin\Auth;
-
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -48,8 +47,8 @@ class AuthenticatedSessionController extends Controller
         // Pilih dashboard tujuan berdasarkan role akun yang berhasil login.
         $dashboardRoute = match ($validated['role']) {
             'admin' => 'admin.dashboard',
-            'warehouse' => 'gudang.dashboard',
-            'cashier' => 'kasir.dashboard',
+            'warehouse' => 'warehouse.dashboard',
+            'cashier' => 'cashier.dashboard',
         };
 
         // Arahkan user ke dashboard rolenya.

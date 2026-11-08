@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\product as Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -29,10 +30,9 @@ class CategoryController extends Controller
                         ->orWhere('code', 'like', "%{$search}%");
                 });
             })
-            // Urutkan dari yang terbaru dan pecah hasil menjadi 10 per halaman.
+            // Urutkan kategori terbaru; kategori ditampilkan sekaligus tanpa pagination.
             ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
         // Render halaman daftar dengan hasil dan kata pencarian aktif.
         return view('admin.categories.index', [
@@ -53,11 +53,13 @@ class CategoryController extends Controller
     {
         // Validasi nama wajib dan unik; deskripsi boleh kosong.
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
+            'name' =>  ['required', 'string', 'max:255', 'unique:categories,name'],
             'description' => ['nullable', 'string'],
         ]);
 
         // Ubah nama menjadi kata-kata huruf besar sebagai bahan pembentuk kode.
+        $data['name'] = strtoupper(trim($data['name']));
+
         $words = explode(' ', strtoupper(trim($data['name'])));
         $code = '';
 
@@ -97,6 +99,74 @@ class CategoryController extends Controller
         return redirect()
             ->route('admin.categories.index')
             ->with('success', "Kategori {$data['name']} berhasil ditambahkan dengan kode {$code}.");
+    }
+
+    // EDIT: Menampilkan form edit kategori yang sudah ada.
+    public function edit(Category $category)
+    {
+        return view('admin.categories.edit', compact('category'));
+    }
+
+    // UPDATE: Memvalidasi lalu memperbarui kategori.
+    public function update(Request $request, Category $category)
+    {
+        $data = $request->validate([
+            'name'        => ['required', 'string', 'max:255', 'unique:categories,name,' . $category->id],
+            'description' => ['nullable', 'string'],
+        ]);
+
+        $data['name'] = strtoupper(trim($data['name']));
+
+        // Regenerasi kode hanya jika nama berubah.
+        if (strtoupper(trim($request->input('name'))) !== $category->name) {
+            $words = explode(' ', $data['name']);
+            $code  = '';
+
+            if (count($words) == 1) {
+                $code = substr($words[0], 0, 3);
+            } elseif (count($words) == 2) {
+                $code = substr($words[0], 0, 2) . substr($words[1], 0, 1);
+            } else {
+                $code = substr($words[0], 0, 1) . substr($words[1], 0, 1) . substr($words[2], 0, 1);
+            }
+
+            $originalCode = $code;
+            $counter      = 1;
+            // Pastikan kode unik, kecuali kode milik kategori ini sendiri.
+            while (Category::where('code', $code)->where('id', '!=', $category->id)->exists()) {
+                $code = $originalCode . $counter;
+                $counter++;
+            }
+
+            $data['code'] = $code;
+            $data['slug'] = Str::slug($data['name']) . '-' . str_pad($category->id, 3, '0', STR_PAD_LEFT);
+        }
+
+        $category->update($data);
+
+        // Jika kode kategori berubah, regenerasi SKU semua produk yang pakai kategori ini.
+        $newCode = strtoupper($data['code'] ?? $category->code);
+        if (isset($data['code'])) {
+            $category->products()->with('brand')->each(function ($product) use ($newCode) {
+                $brandCode = $product->brand ? strtoupper($product->brand->code) : null;
+
+                do {
+                    $randomStr  = strtoupper(Str::random(4));
+                    $newSku     = $brandCode
+                        ? $newCode . '-' . $brandCode . '-' . $randomStr
+                        : $newCode . '-' . $randomStr;
+                    $skuExists  = Product::where('sku', $newSku)
+                        ->where('id', '!=', $product->id)
+                        ->exists();
+                } while ($skuExists);
+
+                $product->update(['sku' => $newSku]);
+            });
+        }
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', "Kategori {$data['name']} berhasil diperbarui.");
     }
 
     public function destroy(Category $category)
