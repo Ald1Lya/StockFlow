@@ -20,6 +20,10 @@ return new class extends Migration
             $table->string('reference_type')->nullable(); // cth: App\Models\Sale atau App\Models\Purchase
             $table->unsignedBigInteger('reference_id')->nullable(); // ID dari Sale/Purchase
             $table->string('reason')->nullable(); // Alasan jika 'adjustment
+            $table->string('status')->nullable(); 
+            $table->string('approved_by')->nullable(); 
+            $table->string('approved_at')->nullable(); 
+            $table->string('approved_note')->nullable(); 
             $table->timestamps();
         });
     }

@@ -261,7 +261,7 @@
                                 <span class="h-1.5 w-1.5 rounded-full bg-[#c9934a]"></span>
                                 <div class="text-[13px] font-semibold text-[#161410]">Stok Rendah</div>
                             </div>
-                            <a href="{{ route('admin.reports.inventory') }}" class="text-[11.5px] font-medium text-[#a67b3f] hover:underline">Detail</a>
+                            {{-- <a href="{{ route('admin.reports.inventory') }}" class="text-[11.5px] font-medium text-[#a67b3f] hover:underline">Detail</a> --}}
                         </div>
                         <ul class="divide-y divide-[#e2dac8]/70">
                             <li class="flex items-center justify-between px-5 py-3">

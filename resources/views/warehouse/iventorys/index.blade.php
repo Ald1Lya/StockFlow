@@ -45,6 +45,7 @@
                     <th class="px-3 py-3 font-semibold">Brand</th>
                     <th class="px-3 py-3 font-semibold">Stok</th>
                     <th class="px-3 py-3 font-semibold">Status</th>
+                    <th class="px-3 py-3 font-semibold">Yang Tersisa</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-[#e2dac8]/70 text-[#3a352d]">
@@ -61,6 +62,21 @@
                                 {{ $product->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </td>
+                        <td class="px-5 py-4 text-center">
+                        @if ($product->stock <= 0)
+                            <span class="rounded-full bg-gray-200 px-3 py-1 text-xs font-semibold text-gray-700">
+                                Habis
+                            </span>
+                        @elseif ($product->stock <= $product->min_stock)
+                            <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                {{ number_format($product->stock, 0, ',', '.') }} · Menipis
+                            </span>
+                        @else
+                            <span class="font-semibold text-[#3a352d]">
+                                {{ number_format($product->stock, 0, ',', '.') }}
+                            </span>
+                        @endif
+                    </td>
                 @empty
                     <tr>
                         <!-- Disesuaikan menjadi colspan="9" agar pas menutupi seluruh kolom -->

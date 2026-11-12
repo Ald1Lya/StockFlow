@@ -63,6 +63,7 @@
                         <th class="px-3 py-3 font-semibold">Dibuat Oleh</th>
                         <th class="px-3 py-3 font-semibold">Tanggal</th>
                         <th class="px-3 py-3 font-semibold">Total</th>
+                        <th class="px-3 py-3 font-semibold">Qty Dipesan</th>
                         <th class="px-3 py-3 font-semibold">Status</th>
                     </tr>
                 </thead>
@@ -87,6 +88,27 @@
                             </td>
                             <td class="px-3 py-3 font-mono text-[11.5px]">
                                 Rp {{ number_format($purchase->total_amount, 0, ',', '.') }}
+                            </td>
+                            <td class="px-3 py-3 text-[11.5px]">
+                                @if ($purchase->status === 'received')
+                                    <span class="text-[#a09880]">—</span>
+                                @else
+                                    @php $qtyDipesan = $purchase->details->sum('quantity'); @endphp
+
+                                    @if ($purchase->status === 'cancelled')
+                                        <span class="text-[#a09880]">
+                                            {{ number_format($qtyDipesan, 0, ',', '.') }} unit
+                                        </span>
+                                    @else
+                                        {{-- Berlaku untuk pending & approved --}}
+                                        <span class="inline-flex items-center gap-1 font-semibold text-amber-700">
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/>
+                                            </svg>
+                                            {{ number_format($qtyDipesan, 0, ',', '.') }} unit
+                                        </span>
+                                    @endif
+                                @endif
                             </td>
                             <td class="px-3 py-3">
                                 @php
@@ -128,7 +150,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-10 text-center">
+                            <td colspan="8" class="px-4 py-10 text-center">
                                 <p class="text-sm font-medium text-[#3a352d]">Belum ada purchase order</p>
                                 <p class="mt-1 text-[12.5px] text-[#7a7264]">
                                     {{ $search !== '' ? 'Coba kata kunci yang berbeda.' : 'Tambahkan PO pertama dengan tombol di atas.' }}

@@ -25,7 +25,7 @@ class PurchaseController extends Controller
         $search = is_string($search) ? mb_substr(trim($search), 0, 100) : '';
 
         $purchases = Purchase::query()
-            ->with(['supplier', 'user'])
+            ->with(['supplier', 'user', 'details'])
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('po_number', 'like', "%{$search}%")

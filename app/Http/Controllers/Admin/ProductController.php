@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+
+// terhubung dengan brand
 use App\Models\Brand;
+
+// terhubung dengan kategori
 use App\Models\Category;
+
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+
 
 class ProductController extends Controller
 {
@@ -348,5 +354,9 @@ class ProductController extends Controller
             ->route('admin.products.index')
             ->with('success', 'Kategori Berhasil Dihapus.');
     }
+
+
+
+
 
 }

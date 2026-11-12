@@ -10,10 +10,13 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\InventoryController;
 
 // URL untuk ROLE GUDANG
 use App\Http\Controllers\Warehouse\IventoryController;
-
+use App\Http\Controllers\Warehouse\AcceptpoController;
+use App\Http\Controllers\Warehouse\StockmovementController;
+use App\Http\Controllers\Warehouse\DashboardController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -64,8 +67,11 @@ Route::middleware(['auth', 'role:admin'])
         // → saat status berubah ke received, stok produk otomatis bertambah sesuai qty detail PO.
         Route::resource('purchases', PurchaseController::class);
 
+        // untuk ngereact dari gudang
+        Route::resource('report_inventorys', InventoryController::class);
+
         Route::view('/reports/sales', 'admin.reports.sales')->name('reports.sales');
-        Route::view('/reports/inventory', 'admin.reports.inventory')->name('reports.inventory');
+        // Route::view('/reports/inventory', 'admin.reports.inventory')->name('reports.inventory');
 
     });
 
@@ -75,10 +81,16 @@ Route::middleware(['auth', 'role:warehouse'])
     ->name('warehouse.')
     ->group(function () {
     
-        Route::view('/dashboard', 'warehouse.dashboard')->name('dashboard');
-    
+        Route::get('/dashboard', [DashboardController::class, 'index']) ->name('dashboard');
          // CRUD Iventory
         Route::resource('iventorys', IventoryController::class);
+
+         // CRUD AcceptPos
+        Route::resource('acceptpos', AcceptpoController::class);
+
+
+         // CRUD Stockopnames
+        Route::resource('stockmovements', StockmovementController::class);
 
         
 

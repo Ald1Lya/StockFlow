@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Gudang — StockFlow</title>
-
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23161410'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='55' fill='%23c9934a'>S</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,23 +85,25 @@
                 Iventory
             </a>
 
-            {{-- <a href=""
-               class="nav-item {{ request()->routeIs('admin.brands.*') ? 'active ' : '' }}relative flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-[#8a8073] transition-colors hover:bg-white/[0.04] hover:text-[#ece7dd]">
-                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3 3.75 7.5 12 12l8.25-4.5L12 3ZM3.75 12 12 16.5 20.25 12M3.75 16.5 12 21l8.25-4.5"/>
-                </svg>
-                Brand
-            </a>
-
-            <a href="{{ route('admin.suppliers.index') }}"
-               class="nav-item {{ request()->routeIs('admin.suppliers.index') ? 'active ' : '' }}relative flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-[#8a8073] transition-colors hover:bg-white/[0.04] hover:text-[#ece7dd]">
+            <a href="{{ route('warehouse.acceptpos.index') }}"
+               class="nav-item {{ request()->routeIs('warehouse.acceptpos.index') ? 'active ' : '' }}relative flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-[#8a8073] transition-colors hover:bg-white/[0.04] hover:text-[#ece7dd]">
+  
                 <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>
                 </svg>
-                Supplier
-            </a> --}}
+                Penerimaan Barang 
+            </a>
+
+            <a href="{{ route('warehouse.stockmovements.index') }}"
+               class="nav-item {{ request()->routeIs('admin.suppliers.index') ? 'active ' : '' }}relative flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] font-medium text-[#8a8073] transition-colors hover:bg-white/[0.04] hover:text-[#ece7dd]">
+                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3 3.75 7.5 12 12l8.25-4.5L12 3ZM3.75 12 12 16.5 20.25 12M3.75 16.5 12 21l8.25-4.5"/>
+                </svg>
+                Stock Opname
+            </a>
 
         </nav>
+
 
 <!-- User card -->
 <div class="border-t border-white/[0.06] p-3">

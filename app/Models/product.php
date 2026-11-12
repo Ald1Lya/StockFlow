@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+
+use App\Models\stockmovement;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -29,5 +32,10 @@ class product extends Model
     public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
+    }
+
+        public function latestStockMovement(): HasOne
+    {
+        return $this->hasOne(stockmovement::class)->latestOfMany();
     }
 }

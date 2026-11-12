@@ -42,4 +42,5 @@ class IventoryController extends Controller
             'search' => $search,
         ]);
     }
+    
 }
