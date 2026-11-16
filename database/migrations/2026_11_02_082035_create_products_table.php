@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('min_stock')->default(5); // Peringatan stok menipis
             $table->boolean('is_active')->default(true);
             $table->foreignId('brand_id')->constrained()->cascadeOnDelete();
+            $table->string('pcs')->nullable();
             $table->timestamps();
         });
     }

@@ -173,7 +173,7 @@
                 </label>
                 <textarea name="approved_note" id="process-note" rows="3" required maxlength="255"
                     class="mt-1.5 w-full rounded-lg border border-stone-300 px-3 py-2.5 text-sm placeholder:text-stone-400 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 transition-shadow"
-                    placeholder="Contoh: Sudah dicek, stok akan dipotong..."></textarea>
+                    placeholder="Sudah dicek, stok akan dipotong..."></textarea>
                 
                 <div class="mt-5 flex items-center justify-end gap-2">
                     <button type="button" onclick="closeProcessModal()"

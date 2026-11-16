@@ -73,6 +73,26 @@
             <input name="min_stock" type="number"   value="{{ old('min_stock') }}" placeholder="Masukkan batas minimum stok" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none" required>
         </label>
 
+
+        {{-- Input Satuan Produk --}}
+        <div>
+            <label class="text-[12px] font-medium text-[#3a352d]">Pilih Satuan</label>
+            <select name="pcs" required class="text-[12px] font-medium text-[#3a352d]>
+                <option value="">-- Pilih Satuan --</option>
+                
+                @foreach($pcs as $sat)
+                    <option value="{{ $sat }}" {{ old('pcs') == $sat ? 'selected' : '' }}>
+                        {{ $sat }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+
+        </label>
+
+
+
         <!-- Input Deskripsi -->
         <label class="text-[12px] font-medium text-[#3a352d] sm:col-span-2">Deskripsi
             <textarea name="description" rows="4" placeholder="Masukkan deskripsi produk" class="mt-1.5 w-full rounded-md border border-[#e2dac8] px-3 py-2 text-[13px] focus:border-[#c9934a] focus:outline-none">{{ old('description') }}</textarea>

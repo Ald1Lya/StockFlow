@@ -200,7 +200,7 @@
                     <div class="overflow-hidden rounded-lg border border-[#e2dac8] bg-white xl:col-span-2">
                         <div class="flex items-center justify-between border-b border-[#e2dac8] px-5 py-3.5">
                             <div class="text-[13px] font-semibold text-[#161410]">Transaksi Terbaru</div>
-                            <a href="{{ route('admin.reports.sales') }}" class="text-[11.5px] font-medium text-[#a67b3f] hover:underline">Lihat semua</a>
+                            {{-- <a href="{{ route('admin.reports.sales') }}" class="text-[11.5px] font-medium text-[#a67b3f] hover:underline">Lihat semua</a> --}}
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-[12.5px]">

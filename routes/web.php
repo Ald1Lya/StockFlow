@@ -11,12 +11,20 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\CashierController;
 
 // URL untuk ROLE GUDANG
 use App\Http\Controllers\Warehouse\IventoryController;
 use App\Http\Controllers\Warehouse\AcceptpoController;
 use App\Http\Controllers\Warehouse\StockmovementController;
 use App\Http\Controllers\Warehouse\DashboardController;
+
+
+
+// URL untuk ROLE Kasir
+use App\Http\Controllers\Sale\SaleController;
+use App\Http\Controllers\Sale\PosController;
+use App\Http\Controllers\Sale\HistoryController;
 
 
 use Illuminate\Support\Facades\Route;
@@ -70,7 +78,10 @@ Route::middleware(['auth', 'role:admin'])
         // untuk ngereact dari gudang
         Route::resource('report_inventorys', InventoryController::class);
 
-        Route::view('/reports/sales', 'admin.reports.sales')->name('reports.sales');
+        //  Report Sales dari Kasir
+        Route::resource('report_sales', CashierController::class);
+
+        // Route::view('/reports/sales', 'admin.report_sales.index')->name('report_sales.index');
         // Route::view('/reports/inventory', 'admin.reports.inventory')->name('reports.inventory');
 
     });
@@ -89,8 +100,14 @@ Route::middleware(['auth', 'role:warehouse'])
         Route::resource('acceptpos', AcceptpoController::class);
 
 
+
          // CRUD Stockopnames
         Route::resource('stockmovements', StockmovementController::class);
+
+
+
+ 
+   
 
         
 
@@ -98,12 +115,21 @@ Route::middleware(['auth', 'role:warehouse'])
 
 
 
+Route::middleware(['auth', 'role:cashier'])
+    ->prefix('cashier')
+    ->name('cashier.')
+    ->group(function () {
+        Route::get('/dashboard', [SaleController::class, 'index'])->name('dashboard');
+        
+        // Transaksi Belanja (POS)
+        Route::resource('pos', PosController::class);
+
+        // Riwayat Penjualan
+        Route::resource('histories', HistoryController::class);
+    });
 
 
 
-Route::view('/kasir/dashboard', 'kasir.dashboard')
-    ->middleware(['auth', 'role:cashier'])
-    ->name('kasir.dashboard');
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')

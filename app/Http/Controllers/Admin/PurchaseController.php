@@ -142,6 +142,8 @@ class PurchaseController extends Controller
     //   received → pending : stok produk DIKURANGI kembali (batal terima)
     public function update(Request $request, Purchase $purchase)
     {
+
+
         $data = $request->validate([
             'status' => ['required', Rule::in(['pending', 'approved', 'received', 'cancelled'])],
         ]);
@@ -150,24 +152,43 @@ class PurchaseController extends Controller
         $statusBaru = $data['status'];
 
         DB::transaction(function () use ($purchase, $statusLama, $statusBaru) {
-            $purchase->update(['status' => $statusBaru]);
 
-            // Stok bertambah hanya sekali: saat status pertama kali menjadi received.
-            if ($statusLama !== 'received' && $statusBaru === 'received') {
-                foreach ($purchase->details as $detail) {
-                    Product::where('id', $detail->product_id)
-                        ->increment('stock', $detail->quantity);
-                }
-            }
+        $purchase->update(['status' => $statusBaru]);
 
-            // Stok dikurangi kembali jika status di-reverse dari received.
-            if ($statusLama === 'received' && $statusBaru !== 'received') {
-                foreach ($purchase->details as $detail) {
-                    Product::where('id', $detail->product_id)
-                        ->decrement('stock', $detail->quantity);
-                }
+        // Jika PO pertama kali diterima.
+        if ($statusLama !== 'received' && $statusBaru === 'received') {
+
+            foreach ($purchase->details as $detail) {
+
+                // Ambil produk berdasarkan ID.
+                $product = Product::query()
+                    ->lockForUpdate()
+                    ->findOrFail($detail->product_id);
+
+                // Tambahkan stok sesuai jumlah barang yang diterima.
+                $product->increment('stock', $detail->quantity);
+
+                // Perbarui harga modal produk berdasarkan harga beli PO.
+                $product->update([
+                    'cost_price' => $detail->unit_cost,
+                ]);
             }
-        });
+        }
+
+        // Jika penerimaan dibatalkan atau status dikembalikan.
+        if ($statusLama === 'received' && $statusBaru !== 'received') {
+
+            foreach ($purchase->details as $detail) {
+
+                $product = Product::query()
+                    ->lockForUpdate()
+                    ->findOrFail($detail->product_id);
+
+                // Kurangi stok yang sebelumnya ditambahkan.
+                $product->decrement('stock', $detail->quantity);
+            }
+        }
+    });
 
         return redirect()
             ->route('admin.purchases.index')

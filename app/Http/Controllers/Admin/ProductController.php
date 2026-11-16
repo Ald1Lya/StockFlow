@@ -23,6 +23,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
+        $pcs =['Pcs','Kg','Sak','Lonjor', 'Kotak'];
         // Ambil pencarian dari URL; admin dapat mencari nama produk atau SKU.
         $search = $request->query('search');
         // Rapikan pencarian dan batasi panjangnya supaya input tetap terkendali.
@@ -48,6 +49,7 @@ class ProductController extends Controller
         return view('admin.products.index', [
             'products' => $products,
             'search' => $search,
+            'pcs' => $pcs,
         ]);
 
     }
@@ -55,6 +57,7 @@ class ProductController extends Controller
     // Menampilkan form tambah untuk product
     public function create(Request $request): View|JsonResponse
     {
+        $pcs =['Pcs','Kg','Sak','Lonjor', 'Kotak'];
         // JavaScript meminta JSON untuk mencari kategori/brand lewat route resource create yang sama.
         if ($request->expectsJson()) {
             // Batasi jenis data yang dicari dan panjang teks pencarian.
@@ -99,11 +102,14 @@ class ProductController extends Controller
             'selectedBrand' => is_scalar($brandId) && $brandId !== ''
                 ? Brand::query()->find($brandId)
                 : null,
+            'pcs'=> $pcs,
         ]);
     }
 
     public function store(Request $request)
     {
+
+
         // Validasi seluruh nilai form sebelum melakukan pemrosesan atau penyimpanan.
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -115,6 +121,7 @@ class ProductController extends Controller
             'cost_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
+            'pcs'=> 'required|string|max:255',
             'min_stock' => 'required|integer|min:0',
             'is_active' => 'boolean',
         ]);
@@ -191,16 +198,20 @@ class ProductController extends Controller
             $prefixBrand = strtoupper($brand->code);
         }
 
+        // Ambil satuan dari form (misal: KG, SAK, PCS)
+        $unitCode = strtoupper($data['pcs']);
+
         do {
-            $randomStr    = strtoupper(Str::random(4));
+            // Generate 4 digit angka acak biar kalau bentrok, loop berikutnya berubah
+            $randomNumber = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+
             $generatedSku = $prefixBrand !== ''
-                ? $prefixKategori . '-' . $prefixBrand . '-' . $randomStr
-                : $prefixKategori . '-' . $randomStr;
+                ? "{$prefixKategori}-{$prefixBrand}-{$randomNumber}-{$unitCode}"
+                : "{$prefixKategori}-{$randomNumber}-{$unitCode}";
 
             $skuExists = Product::where('sku', $generatedSku)->exists();
         } while ($skuExists);
 
-        // Masukkan SKU yang sudah pasti unik ke dalam array data sebelum disave
         $data['sku'] = $generatedSku;
                     
         // 3. Simpan ke Database
@@ -219,14 +230,17 @@ class ProductController extends Controller
 
         public function edit(Product $product)
     {
+        $pcs =['Pcs','Kg','Sak','Lonjor', 'Kotak'];
         // Gunakan product dari route model binding untuk mengisi form edit.
         return view('admin.products.edit', [
             'product' => $product,
+            'pcs' => $pcs,
         ]);
     }
 
     public function update(Request $request, Product $product)
     {
+  
         // 1. Validasi data dari form
         $data = $request->validate([
             'category_id'  => 'required|exists:categories,id',
@@ -237,6 +251,7 @@ class ProductController extends Controller
             'cost_price'   => 'required|numeric|min:0',
             'selling_price'=> 'required|numeric|min:0',
             'stock'        => 'required|integer|min:0',
+            'pcs'          => 'required|string|max:255',
             'min_stock'    => 'required|integer|min:0',
         ]);
 
@@ -244,40 +259,37 @@ class ProductController extends Controller
         //    sehingga tidak boleh masuk validasi; tangkap manual lalu paksa ke boolean.
         $data['is_active'] = $request->boolean('is_active');
 
-        // 3. Cek apakah kategori atau brand berubah
-        $categoryChanged = $product->category_id != $data['category_id'];
-        $brandChanged = $product->brand_id != $data['brand_id'];
+        // 3. Cek apakah kategori, brand, atau satuan berubah
+                $categoryChanged = $product->category_id != $data['category_id'];
+                $brandChanged = $product->brand_id != $data['brand_id'];
+                $unitChanged = $product->pcs != $data['pcs'];
 
-        if ($categoryChanged || $brandChanged) {
+                if ($categoryChanged || $brandChanged || $unitChanged) {
+                    $category = Category::findOrFail($data['category_id']);
+                    $prefixKategori = strtoupper($category->code);
 
-            $category = Category::findOrFail($data['category_id']);
+                    $prefixBrand = '';
+                    if (!empty($data['brand_id'])) {
+                        $brand = Brand::findOrFail($data['brand_id']);
+                        $prefixBrand = strtoupper($brand->code);
+                    }
 
-            $prefixKategori = strtoupper($category->code);
+                    $unitCode = strtoupper($data['pcs']);
 
-            // Brand boleh kosong
-            $prefixBrand = '';
+                    do {
+                        $randomNumber = str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
 
-            if (!empty($data['brand_id'])) {
-                $brand = Brand::findOrFail($data['brand_id']);
-                $prefixBrand = strtoupper($brand->code);
-            }
+                        $generatedSku = $prefixBrand !== ''
+                            ? "{$prefixKategori}-{$prefixBrand}-{$randomNumber}-{$unitCode}"
+                            : "{$prefixKategori}-{$randomNumber}-{$unitCode}";
 
-            // Generate SKU baru
-            do {
-                $randomStr = strtoupper(Str::random(4));
+                        $skuExists = Product::where('sku', $generatedSku)
+                            ->where('id', '!=', $product->id)
+                            ->exists();
+                    } while ($skuExists);
 
-                $generatedSku = $prefixBrand !== ''
-                    ? $prefixKategori.'-'.$prefixBrand.'-'.$randomStr
-                    : $prefixKategori.'-'.$randomStr;
-
-                $skuExists = Product::where('sku', $generatedSku)
-                    ->where('id', '!=', $product->id)
-                    ->exists();
-
-            } while ($skuExists);
-
-            $data['sku'] = $generatedSku;
-        }
+                    $data['sku'] = $generatedSku;
+                }
 
         // 4. Proses gambar jika ada upload baru
         if ($request->hasFile('image')) {

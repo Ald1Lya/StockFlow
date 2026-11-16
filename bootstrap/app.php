@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             return match ($role) {
                 'admin'     => route('admin.dashboard'),
                 'warehouse' => route('warehouse.dashboard'),
-                'cashier'   => route('kasir.dashboard'),
+                'cashier'   => route('cashier.dashboard'),
                 default     => route('login'),
             };
         });
