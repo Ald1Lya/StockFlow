@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  * Controller untuk Halaman Utama / Dashboard Kasir
  */
-class SaleController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Menampilkan dashboard kasir: ringkasan omzet, total transaksi shift, dan stok menipis

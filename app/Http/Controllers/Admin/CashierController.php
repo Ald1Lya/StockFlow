@@ -10,21 +10,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Controller untuk Halaman Utama / Dashboard Kasir
+ * Controller Laporan Penjualan Kasir (Sisi Admin)
+ * Digunakan oleh Admin untuk memantau omzet, laba kotor, dan riwayat transaksi semua kasir.
  */
 class CashierController extends Controller
 {
     /**
-     * Menampilkan dashboard kasir: ringkasan omzet, total transaksi shift, dan stok menipis
+     * Menampilkan rekap laporan penjualan dengan filter tanggal, kasir, dan kata kunci
      */
     public function index(Request $request)
     {
+        // 1. Ambil parameter filter dari request URL (pencarian, rentang tanggal, & filter per kasir)
         $search    = trim((string) $request->query('search', ''));
         $startDate = $request->query('start_date');
         $endDate   = $request->query('end_date');
         $cashierId = $request->query('cashier_id');
 
-        // Base query untuk filter yang sama antara tabel & kartu ringkasan
+        // 2. Susun base query agar perhitungan statistik dan tabel data menggunakan kriteria filter yang sama
         $baseQuery = Sale::query()
             ->when($search !== '', function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%");
@@ -39,11 +41,11 @@ class CashierController extends Controller
                 $q->where('user_id', $cashierId);
             });
 
-        // 1. Hitung Ringkasan Omzet & Jumlah Transaksi sesuai filter aktif
+        // 3. Hitung ringkasan total omzet dan total frekuensi transaksi sesuai filter aktif
         $totalRevenue      = (clone $baseQuery)->sum('total_amount');
         $totalTransactions = (clone $baseQuery)->count();
 
-        // 2. Hitung Estimasi Laba Kotor (Omzet - Modal Produk terjual)
+        // 4. Hitung estimasi Laba Kotor: (Total Omzet - Total Harga Modal Produk yang terjual)
         $filteredSaleIds = (clone $baseQuery)->pluck('id');
         $totalModal = SaleDetail::query()
             ->whereIn('sale_id', $filteredSaleIds)
@@ -52,18 +54,19 @@ class CashierController extends Controller
 
         $grossProfit = $totalRevenue - $totalModal;
 
-        // 3. Ambil daftar transaksi untuk tabel (include rincian item & kasir)
+        // 5. Ambil data penjualan dengan pagination (15 per halaman) beserta data kasir dan rincian produknya
         $sales = $baseQuery
             ->with(['user', 'details.product'])
             ->latest('sale_date')
             ->paginate(15)
             ->withQueryString();
 
-        // Daftar user kasir untuk dropdown filter
+        // 6. Ambil daftar user dengan role cashier untuk opsi dropdown filter di halaman view
         $cashiers = User::where('role', 'cashier')
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        // 7. Render view laporan penjualan
         return view('admin.report_sales.index', [
             'sales'             => $sales,
             'cashiers'          => $cashiers,

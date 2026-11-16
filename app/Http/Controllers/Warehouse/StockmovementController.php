@@ -9,13 +9,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Controller Pengajuan Penyesuaian Stok / Barang Rusak (Sisi Staf Gudang)
+ * Digunakan staf gudang untuk melaporkan barang rusak/hilang yang memerlukan persetujuan Admin.
+ */
 class StockMovementController extends Controller
 {
+    /**
+     * Menampilkan daftar produk beserta status pengajuan penyesuaian stok terakhirnya
+     */
     public function index(Request $request)
     {
         $search = $request->query('search');
         $search = is_string($search) ? mb_substr(trim($search), 0, 100) : '';
 
+        // Query produk lengkap dengan kategori, brand, dan status pengajuan mutasi terakhirnya
         $products = Product::query()
             ->with(['category', 'brand', 'latestStockMovement'])
             ->when($search !== '', function ($query) use ($search) {
@@ -37,6 +45,9 @@ class StockMovementController extends Controller
         ]);
     }
 
+    /**
+     * Form pengajuan pengurangan stok barang rusak/hilang
+     */
     public function create(Request $request)
     {
         $data = $request->validate([
@@ -46,14 +57,14 @@ class StockMovementController extends Controller
         $product = Product::with(['category', 'brand', 'latestStockMovement'])
             ->findOrFail($data['product']);
 
-        // Cegah buka form kalau masih ada laporan yang belum diproses Admin
+        // Cegah buka form jika masih ada laporan sebelumnya yang statusnya masih 'pending'
         if ($product->latestStockMovement?->status === 'pending') {
             return redirect()
                 ->route('warehouse.stockmovements.index')
                 ->with('error', 'Produk ini masih memiliki laporan yang menunggu pengecekan Admin.');
         }
 
-        // Cegah lapor kalau stok sudah 0
+        // Cegah lapor jika stok produk saat ini sudah 0
         if ($product->stock <= 0) {
             return redirect()
                 ->route('warehouse.stockmovements.index')
@@ -65,55 +76,63 @@ class StockMovementController extends Controller
         ]);
     }
 
-public function store(Request $request)
-{
-    $data = $request->validate([
-        'product_id' => 'required|integer|exists:products,id',
-        'quantity'   => 'required|integer|min:1',
-        'reason'     => 'required|string|max:255',
-    ]);
+    /**
+     * Menyimpan laporan pengurangan stok (status awal: 'pending')
+     */
+    public function store(Request $request)
+    {
+        // 1. Validasi input: produk, jumlah barang rusak/kurang, dan alasan pelaporan
+        $data = $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity'   => 'required|integer|min:1',
+            'reason'     => 'required|string|max:255',
+        ]);
 
-    $product = Product::with('latestStockMovement')->findOrFail($data['product_id']);
-    $latest = $product->latestStockMovement;
+        $product = Product::with('latestStockMovement')->findOrFail($data['product_id']);
+        $latest = $product->latestStockMovement;
 
-    // Kalau laporan terakhir masih pending, akumulasi ke data yang sama (tidak bikin data baru)
-    if ($latest && $latest->status === 'pending') {
-        $totalQuantity = $latest->quantity + $data['quantity'];
+        // 2. Jika ada laporan terakhir yang masih pending, akumulasikan jumlahnya agar tidak duplikat record
+        if ($latest && $latest->status === 'pending') {
+            $totalQuantity = $latest->quantity + $data['quantity'];
 
-        if ($totalQuantity > $product->stock) {
-            return back()
-                ->withInput()
-                ->withErrors(['quantity' => "Total pengajuan ({$totalQuantity}) melebihi stok tersedia ({$product->stock})."]);
+            if ($totalQuantity > $product->stock) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['quantity' => "Total pengajuan ({$totalQuantity}) melebihi stok tersedia ({$product->stock})."]);
+            }
+
+            $latest->update([
+                'quantity' => $totalQuantity,
+                'reason'   => mb_substr("{$latest->reason} | +{$data['quantity']}: {$data['reason']}", 0, 255),
+                'user_id'  => Auth::id(),
+            ]);
+        } else {
+            // Jika baru, pastikan jumlah yang dilaporkan tidak melebihi stok fisik
+            if ($data['quantity'] > $product->stock) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['quantity' => "Jumlah melebihi stok tersedia ({$product->stock})."]);
+            }
+
+            // Simpan baris baru ke stock_movements dengan status pending (stok belum dipotong sampai di-approve Admin)
+            stockmovement::create([
+                'product_id' => $product->id,
+                'user_id'    => Auth::id(),
+                'type'       => 'out',
+                'quantity'   => $data['quantity'],
+                'reason'     => $data['reason'],
+                'status'     => 'pending',
+            ]);
         }
 
-        $latest->update([
-            'quantity' => $totalQuantity,
-            'reason'   => mb_substr("{$latest->reason} | +{$data['quantity']}: {$data['reason']}", 0, 255),
-            'user_id'  => Auth::id(),
-        ]);
-    } else {
-        if ($data['quantity'] > $product->stock) {
-            return back()
-                ->withInput()
-                ->withErrors(['quantity' => "Jumlah melebihi stok tersedia ({$product->stock})."]);
-        }
-
-        stockmovement::create([
-            'product_id' => $product->id,
-            'user_id'    => Auth::id(),
-            'type'       => 'out',
-            'quantity'   => $data['quantity'],
-            'reason'     => $data['reason'],
-            'status'     => 'pending',
-        ]);
+        return redirect()
+            ->route('warehouse.stockmovements.index')
+            ->with('success', 'Laporan barang rusak berhasil dikirim ke Admin.');
     }
 
-    return redirect()
-        ->route('warehouse.stockmovements.index')
-        ->with('success', 'Laporan barang rusak berhasil dikirim ke Admin.');
-}
-
-    // ADMIN APPROVE (Potong stok sesuai laporan yang disetujui)
+    /**
+     * Persetujuan Admin (Approve): Stok resmi dipotong dari sistem
+     */
     public function approve(Request $request, $id)
     {
         $request->validate([
@@ -134,9 +153,11 @@ public function store(Request $request)
                     throw new \RuntimeException('Stok produk saat ini tidak mencukupi untuk dipotong.');
                 }
 
+                // Potong stok produk
                 $product->stock -= $movement->quantity;
                 $product->save();
 
+                // Ubah status mutasi menjadi approved
                 $movement->update([
                     'status'        => 'approved',
                     'approved_by'   => Auth::id(),
@@ -151,7 +172,9 @@ public function store(Request $request)
         return back()->with('success', 'Laporan disetujui. Stok produk resmi dipotong.');
     }
 
-    // ADMIN REJECT (Stok tidak dipotong, tombol lapor otomatis terbuka lagi)
+    /**
+     * Penolakan Admin (Reject): Pengajuan ditolak, stok produk tetap utuh
+     */
     public function reject(Request $request, $id)
     {
         $request->validate([

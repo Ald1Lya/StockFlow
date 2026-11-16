@@ -1,58 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏗️ StockFlow — Sistem Manajemen Inventaris & POS Toko Bangunan
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**StockFlow** adalah aplikasi berbasis web untuk mengelola operasional, rantai pasok, dan transaksi kasir (*Point of Sale*) pada toko bahan bangunan. Sistem ini dirancang dengan pembagian hak akses (*Multi-Role*) yang ketat dan pencatatan mutasi stok otomatis (*Audit Trail*) dari barang masuk hingga terjual.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Fitur Utama Berdasarkan Peran (Role)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. 👑 Admin (Manajemen & Master Data)
+* **Dashboard Operasional:** Ringkasan pendapatan bulanan, pertumbuhan transaksi, grafik tren penjualan interaktif (Bulanan & Harian), produk terlaris, serta peringatan stok menipis.
+* **Manajemen Master Data:** Pengelolaan penuh (*CRUD*) untuk data **Pengguna (User)**, **Kategori**, **Brand/Merek**, **Supplier**, dan **Produk** (termasuk harga modal, harga jual, satuan, serta batas stok minimum).
+* **Purchase Order (PO):** Pembuatan pesanan pembelian barang ke *supplier* dengan pembuatan nomor PO otomatis.
+* **Laporan Penjualan & Inventaris:** Rekap transaksi kasir lengkap dengan filter tanggal/kasir, rincian item per nota, perhitungan **estimasi laba kotor**, serta pemantauan riwayat keluar-masuk barang (`StockMovement`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 2. 📦 Warehouse / Gudang (Logistik & Stok)
+* **Penerimaan Barang (PO Acceptance):** Validasi penerimaan barang dari *supplier* dengan alur **satu arah (*one-way flow*)** demi menjaga integritas audit. Saat status PO diubah menjadi *Diterima*, stok produk dan harga modal (`cost_price`) diperbarui otomatis.
+* **Cek Stok Gudang:** Pencarian cepat berdasarkan nama, SKU, kategori, atau brand, dilengkapi filter kondisi stok (*Menipis* & *Habis*).
+* **Mutasi & Penyesuaian Stok (*Stock Opname*):** Pencatatan penyesuaian stok manual (barang rusak, selisih hitung, dll.) yang tercatat dalam riwayat mutasi stok.
 
-## Learning Laravel
+### 3. 🛒 Cashier / Kasir (Point of Sale)
+* **Dashboard Kasir:** Informasi ringkas omzet toko hari ini, jumlah transaksi per *shift*, dan daftar barang yang hampir habis.
+* **Mesin Kasir (POS) Pintar:**
+  * **Multi-Unit UI Grouping:** Produk dengan nama yang sama namun berbeda satuan jual (misalnya *Paku: Kotak vs. Kg*) digabung dalam **1 kartu produk** dengan tombol pemilih satuan instan agar layar kasir tetap bersih.
+  * Keranjang belanja interaktif, kalkulasi kembalian otomatis, dan tombol nominal uang cepat.
+  * Pemotongan stok dan pencatatan mutasi barang keluar (`type: out`) otomatis saat pembayaran selesai.
+* **Struk Thermal & Riwayat Transaksi:** Cetak struk otomatis setelah transaksi berhasil serta pencarian dan cetak ulang nota lama.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🛠️ Teknologi yang Digunakan
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+* **Backend:** Laravel 13 (PHP 8.5)
+* **Frontend:** Blade Templates, Tailwind CSS, Alpine.js
+* **Database:** MySQL / MariaDB
+* **Arsitektur & Keamanan:** Role-Based Access Control (Middleware), Database Transactions (`DB::transaction`) dengan *Pessimistic Locking* (`lockForUpdate`) untuk mencegah selisih stok saat transaksi bersamaan.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 🚀 Panduan Instalasi Lokal
 
-```bash
-composer require laravel/boost --dev
+Ikuti langkah berikut untuk menjalankan proyek ini di komputer lokal:
 
-php artisan boost:install
+1. **Clone repositori ini**
+   ```bash
+   git clone https://github.com/username/stockflow-toko-bangunan.git
+   cd stockflow-toko-bangunan
+   ```
+
+2. **Install dependensi PHP & JavaScript**
+   ```bash
+   composer install
+   npm install
+   ```
+
+3. **Konfigurasi file environment**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   Sesuaikan pengaturan koneksi database (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) di dalam file `.env`.
+
+4. **Jalankan migrasi database**
+   ```bash
+   php artisan migrate
+   ```
+
+5. **Compile aset frontend & jalankan server**
+   ```bash
+   npm run build
+   php artisan serve
+   ```
+   Buka browser dan akses `http://127.0.0.1:8000`.
+
+---
+
+## 📂 Struktur Modul & Routing
+
+```text
+├── admin/
+│   ├── dashboard          # Ringkasan & grafik tren pendapatan
+│   ├── users              # Manajemen akun Admin, Gudang, Kasir
+│   ├── products           # Master data produk & satuan
+│   ├── purchases          # Pembuatan Purchase Order (PO)
+│   ├── report_sales       # Laporan omzet & laba kotor
+│   └── report_inventorys  # Laporan stok & riwayat mutasi
+├── warehouse/
+│   ├── dashboard          # Ringkasan aktivitas gudang
+│   ├── iventorys          # Pemantauan stok fisik gudang
+│   ├── acceptpos          # Penerimaan barang dari PO
+│   └── stockmovements     # Pencatatan mutasi / opname stok
+└── cashier/
+    ├── dashboard          # Ringkasan transaksi kasir
+    ├── pos                # Transaksi penjualan & cetak nota
+    └── histories          # Riwayat transaksi & cetak ulang struk
 ```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

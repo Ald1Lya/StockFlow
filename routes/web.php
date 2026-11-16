@@ -4,6 +4,9 @@
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 
+
+// URL ADMIN
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
@@ -14,15 +17,13 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\CashierController;
 
 // URL untuk ROLE GUDANG
+use App\Http\Controllers\Warehouse\DashboardController as WarehouseDashboardController;
 use App\Http\Controllers\Warehouse\IventoryController;
 use App\Http\Controllers\Warehouse\AcceptpoController;
 use App\Http\Controllers\Warehouse\StockmovementController;
-use App\Http\Controllers\Warehouse\DashboardController;
-
-
 
 // URL untuk ROLE Kasir
-use App\Http\Controllers\Sale\SaleController;
+use App\Http\Controllers\Sale\DashboardController as CashierDashboardController;
 use App\Http\Controllers\Sale\PosController;
 use App\Http\Controllers\Sale\HistoryController;
 
@@ -53,7 +54,7 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+          Route::get('/dashboard', [AdminDashboardController::class, 'index']) ->name('dashboard');
 
         // Master data user — admin bisa lihat, tambah, edit, hapus user lain.
         Route::resource('users', UserController::class);
@@ -92,24 +93,16 @@ Route::middleware(['auth', 'role:warehouse'])
     ->name('warehouse.')
     ->group(function () {
     
-        Route::get('/dashboard', [DashboardController::class, 'index']) ->name('dashboard');
+        Route::get('/dashboard', [WarehouseDashboardController::class, 'index']) ->name('dashboard');
+        
          // CRUD Iventory
         Route::resource('iventorys', IventoryController::class);
 
          // CRUD AcceptPos
         Route::resource('acceptpos', AcceptpoController::class);
 
-
-
          // CRUD Stockopnames
         Route::resource('stockmovements', StockmovementController::class);
-
-
-
- 
-   
-
-        
 
     });
 
@@ -119,7 +112,7 @@ Route::middleware(['auth', 'role:cashier'])
     ->prefix('cashier')
     ->name('cashier.')
     ->group(function () {
-        Route::get('/dashboard', [SaleController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [CashierDashboardController::class, 'index'])->name('dashboard');
         
         // Transaksi Belanja (POS)
         Route::resource('pos', PosController::class);
